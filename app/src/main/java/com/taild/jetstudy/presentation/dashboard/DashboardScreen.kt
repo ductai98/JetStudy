@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -32,8 +33,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.taild.jetstudy.R
 import com.taild.jetstudy.domain.model.Subject
+import com.taild.jetstudy.domain.model.Task
 import com.taild.jetstudy.presentation.components.CountCard
 import com.taild.jetstudy.presentation.components.SubjectCard
+import com.taild.jetstudy.presentation.components.taskList
 
 @Composable
 fun DashboardScreen() {
@@ -44,6 +47,51 @@ fun DashboardScreen() {
         Subject(name = "Geology", goalHours = 10f, colors = Subject.subjectCardColors[3]),
         Subject(name = "Fine Arts", goalHours = 10f, colors = Subject.subjectCardColors[0])
     )
+
+    val tasks = listOf(
+        Task(
+            title = "Prepate notes",
+            description = "",
+            dueDate = 0L,
+            priority = 1,
+            relatedToSubject = "",
+            isCompleted = false
+        ),
+        Task(
+            title = "Do homework",
+            description = "",
+            dueDate = 0L,
+            priority = 1,
+            relatedToSubject = "",
+            isCompleted = true
+        ),
+        Task(
+            title = "Go Coaching",
+            description = "",
+            dueDate = 0L,
+            priority = 1,
+            relatedToSubject = "",
+            isCompleted = false
+        ),
+        Task(
+            title = "Assignment",
+            description = "",
+            dueDate = 0L,
+            priority = 1,
+            relatedToSubject = "",
+            isCompleted = false
+        ),
+        Task(
+            title = "Write poem",
+            description = "",
+            dueDate = 0L,
+            priority = 1,
+            relatedToSubject = "",
+            isCompleted = true
+        )
+    )
+
+
     Scaffold(
         topBar = {
             DashboardTopAppBar()
@@ -71,6 +119,17 @@ fun DashboardScreen() {
                     subjects = subjects
                 )
             }
+            item {
+                Button(
+                    onClick = { },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 48.dp, vertical = 12.dp)
+                ) {
+                    Text(text = "Start Study Session")
+                }
+            }
+            taskList(tasks = tasks)
         }
     }
 }
