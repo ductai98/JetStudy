@@ -1,9 +1,9 @@
 package com.taild.jetstudy.presentation.dashboard
 
+import android.nfc.tech.IsoDep
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,6 +26,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,7 +40,9 @@ import com.taild.jetstudy.R
 import com.taild.jetstudy.domain.model.Session
 import com.taild.jetstudy.domain.model.Subject
 import com.taild.jetstudy.domain.model.Task
+import com.taild.jetstudy.presentation.components.AddSubjectDialog
 import com.taild.jetstudy.presentation.components.CountCard
+import com.taild.jetstudy.presentation.components.DeleteDialog
 import com.taild.jetstudy.presentation.components.SubjectCard
 import com.taild.jetstudy.presentation.components.studySessionsList
 import com.taild.jetstudy.presentation.components.taskList
@@ -135,6 +141,41 @@ fun DashboardScreen() {
         )
     )
 
+    var isAddSubjectDialogOpen by rememberSaveable { mutableStateOf(false) }
+    var isDeleteDialogOpen by rememberSaveable { mutableStateOf(false) }
+    var subjectName by rememberSaveable { mutableStateOf("") }
+    var goalHours by rememberSaveable { mutableStateOf("") }
+    var selectedColors by rememberSaveable { mutableStateOf(Subject.subjectCardColors.random()) }
+
+
+    AddSubjectDialog(
+        isOpen = isAddSubjectDialogOpen,
+        onDismissRequest = {
+            isAddSubjectDialogOpen = false
+        },
+        onConfirmButtonClick = {
+            isAddSubjectDialogOpen = false
+        },
+        selectedColors = selectedColors,
+        onColorChanged = {
+            selectedColors = it
+        },
+        subjectName = subjectName,
+        onSubjectNameChanged = {
+            subjectName = it
+        },
+        goalHours = goalHours,
+        onGoalHoursChanged = {
+            goalHours = it
+        }
+    )
+
+    DeleteDialog(
+        isOpen = isDeleteDialogOpen,
+        onDismissRequest = { isDeleteDialogOpen = false },
+        onConfirmButtonClick = { isDeleteDialogOpen = false }
+    )
+
     Scaffold(
         topBar = {
             DashboardTopAppBar()
@@ -159,7 +200,10 @@ fun DashboardScreen() {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(12.dp),
-                    subjects = subjects
+                    subjects = subjects,
+                    onAddIconClick = {
+                        isAddSubjectDialogOpen = true
+                    }
                 )
             }
             item {
@@ -182,7 +226,7 @@ fun DashboardScreen() {
             }
             studySessionsList(
                 sessions = sessions,
-                onDeleteClick = {}
+                onDeleteClick = { isDeleteDialogOpen = true }
             )
         }
     }
@@ -227,7 +271,8 @@ private fun CountCardsSection(
 @Composable
 private fun SubjectCardsSection(
     modifier: Modifier = Modifier,
-    subjects: List<Subject>
+    subjects: List<Subject>,
+    onAddIconClick: () -> Unit,
 ) {
     Column(
         modifier = modifier
@@ -243,7 +288,7 @@ private fun SubjectCardsSection(
                 modifier = Modifier.padding(start = 12.dp)
             )
             IconButton(
-                onClick = { /*TODO*/ }
+                onClick = onAddIconClick
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
@@ -276,7 +321,7 @@ private fun SubjectCardsSection(
                 SubjectCard(
                     subjectName = subject.name,
                     gradientColors = subject.colors,
-                    onClick = {}
+                    onClick = { }
                 )
             }
         }
