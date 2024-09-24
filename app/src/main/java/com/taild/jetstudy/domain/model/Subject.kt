@@ -8,6 +8,7 @@ import com.taild.jetstudy.presentation.theme.gradient4
 import com.taild.jetstudy.presentation.theme.gradient5
 
 data class Subject(
+    val id: Int,
     val name: String,
     val goalHours: Float,
     val colors: List<Color>

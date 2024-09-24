@@ -1,6 +1,7 @@
 package com.taild.jetstudy.presentation.components
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -20,6 +21,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun TaskCheckBox(
+    borderColor: Color,
     isCompleted: Boolean,
     onCheckBoxClick: () -> Unit
 ) {
@@ -27,7 +29,7 @@ fun TaskCheckBox(
         modifier = Modifier
             .size(25.dp)
             .clip(CircleShape)
-            .border(2.dp, Color.Black, CircleShape)
+            .border(2.dp, borderColor, CircleShape)
             .clickable { onCheckBoxClick() },
         contentAlignment = Alignment.Center
     ) {

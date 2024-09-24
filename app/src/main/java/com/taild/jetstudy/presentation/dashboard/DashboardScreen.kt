@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -32,32 +33,38 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.taild.jetstudy.R
+import com.taild.jetstudy.domain.model.Session
 import com.taild.jetstudy.domain.model.Subject
 import com.taild.jetstudy.domain.model.Task
 import com.taild.jetstudy.presentation.components.CountCard
 import com.taild.jetstudy.presentation.components.SubjectCard
+import com.taild.jetstudy.presentation.components.studySessionsList
 import com.taild.jetstudy.presentation.components.taskList
 
 @Composable
 fun DashboardScreen() {
     val subjects = listOf(
-        Subject(name = "English", goalHours = 10f, colors = Subject.subjectCardColors[0]),
-        Subject(name = "Physics", goalHours = 10f, colors = Subject.subjectCardColors[1]),
-        Subject(name = "Maths", goalHours = 10f, colors = Subject.subjectCardColors[2]),
-        Subject(name = "Geology", goalHours = 10f, colors = Subject.subjectCardColors[3]),
-        Subject(name = "Fine Arts", goalHours = 10f, colors = Subject.subjectCardColors[0])
+        Subject(id = 0, name = "English", goalHours = 10f, colors = Subject.subjectCardColors[0]),
+        Subject(id = 0, name = "Physics", goalHours = 10f, colors = Subject.subjectCardColors[1]),
+        Subject(id = 0, name = "Maths", goalHours = 10f, colors = Subject.subjectCardColors[2]),
+        Subject(id = 0, name = "Geology", goalHours = 10f, colors = Subject.subjectCardColors[3]),
+        Subject(id = 0, name = "Fine Arts", goalHours = 10f, colors = Subject.subjectCardColors[0])
     )
 
     val tasks = listOf(
         Task(
+            id = 1,
+            subjectId = 0,
             title = "Prepate notes",
             description = "",
             dueDate = 0L,
-            priority = 1,
+            priority = 0,
             relatedToSubject = "",
             isCompleted = false
         ),
         Task(
+            id = 1,
+            subjectId = 0,
             title = "Do homework",
             description = "",
             dueDate = 0L,
@@ -66,14 +73,18 @@ fun DashboardScreen() {
             isCompleted = true
         ),
         Task(
+            id = 1,
+            subjectId = 0,
             title = "Go Coaching",
             description = "",
             dueDate = 0L,
-            priority = 1,
+            priority = 2,
             relatedToSubject = "",
             isCompleted = false
         ),
         Task(
+            id = 1,
+            subjectId = 0,
             title = "Assignment",
             description = "",
             dueDate = 0L,
@@ -82,15 +93,47 @@ fun DashboardScreen() {
             isCompleted = false
         ),
         Task(
+            id = 1,
+            subjectId = 0,
             title = "Write poem",
             description = "",
             dueDate = 0L,
-            priority = 1,
+            priority = 0,
             relatedToSubject = "",
             isCompleted = true
         )
     )
 
+    val sessions = listOf(
+        Session(
+            id = 0,
+            subjectId = 0,
+            relatedToSubject = "English",
+            date = 0L,
+            duration = 2
+        ),
+        Session(
+            id = 0,
+            subjectId = 0,
+            relatedToSubject = "English",
+            date = 0L,
+            duration = 2
+        ),
+        Session(
+            id = 0,
+            subjectId = 0,
+            relatedToSubject = "Physics",
+            date = 0L,
+            duration = 2
+        ),
+        Session(
+            id = 0,
+            subjectId = 0,
+            relatedToSubject = "Maths",
+            date = 0L,
+            duration = 2
+        )
+    )
 
     Scaffold(
         topBar = {
@@ -129,7 +172,18 @@ fun DashboardScreen() {
                     Text(text = "Start Study Session")
                 }
             }
-            taskList(tasks = tasks)
+            taskList(
+                tasks = tasks,
+                onTaskCardClick = {},
+                onCheckBoxClick = {}
+            )
+            item {
+                Spacer(modifier = Modifier.height(20.dp))
+            }
+            studySessionsList(
+                sessions = sessions,
+                onDeleteClick = {}
+            )
         }
     }
 }
