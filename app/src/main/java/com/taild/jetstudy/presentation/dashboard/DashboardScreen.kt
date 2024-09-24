@@ -33,6 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -50,11 +51,11 @@ import com.taild.jetstudy.presentation.components.taskList
 @Composable
 fun DashboardScreen() {
     val subjects = listOf(
-        Subject(id = 0, name = "English", goalHours = 10f, colors = Subject.subjectCardColors[0]),
-        Subject(id = 0, name = "Physics", goalHours = 10f, colors = Subject.subjectCardColors[1]),
-        Subject(id = 0, name = "Maths", goalHours = 10f, colors = Subject.subjectCardColors[2]),
-        Subject(id = 0, name = "Geology", goalHours = 10f, colors = Subject.subjectCardColors[3]),
-        Subject(id = 0, name = "Fine Arts", goalHours = 10f, colors = Subject.subjectCardColors[0])
+        Subject(id = 0, name = "English", goalHours = 10f, colors = Subject.subjectCardColors[0].map { Color(it) }),
+        Subject(id = 0, name = "Physics", goalHours = 10f, colors = Subject.subjectCardColors[1].map { Color(it) }),
+        Subject(id = 0, name = "Maths", goalHours = 10f, colors = Subject.subjectCardColors[2].map { Color(it) }),
+        Subject(id = 0, name = "Geology", goalHours = 10f, colors = Subject.subjectCardColors[3].map { Color(it) }),
+        Subject(id = 0, name = "Fine Arts", goalHours = 10f, colors = Subject.subjectCardColors[0].map { Color(it) })
     )
 
     val tasks = listOf(

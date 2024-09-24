@@ -36,8 +36,8 @@ fun AddSubjectDialog(
     isOpen: Boolean,
     onDismissRequest: () -> Unit,
     onConfirmButtonClick: () -> Unit,
-    selectedColors: List<Color>,
-    onColorChanged: (List<Color>) -> Unit,
+    selectedColors: List<Int>,
+    onColorChanged: (List<Int>) -> Unit,
     subjectName: String,
     onSubjectNameChanged: (String) -> Unit,
     goalHours: String,
@@ -98,8 +98,8 @@ fun AddSubjectDialog(
 
 @Composable
 fun DialogBody(
-    selectedColors: List<Color>,
-    onColorChanged: (List<Color>) -> Unit,
+    selectedColors: List<Int>,
+    onColorChanged: (List<Int>) -> Unit,
     subjectName: String,
     onSubjectNameChanged: (String) -> Unit,
     goalHours: String,
@@ -119,7 +119,7 @@ fun DialogBody(
                     modifier = Modifier
                         .size(30.dp)
                         .clip(CircleShape)
-                        .background(brush = Brush.verticalGradient(colors))
+                        .background(brush = Brush.verticalGradient(colors.map { Color(it) }))
                         .border(
                             width = 2.dp,
                             color = if (colors == selectedColors) {
