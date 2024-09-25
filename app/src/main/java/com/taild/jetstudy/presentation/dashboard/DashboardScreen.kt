@@ -1,6 +1,5 @@
 package com.taild.jetstudy.presentation.dashboard
 
-import android.nfc.tech.IsoDep
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -33,114 +32,23 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.taild.jetstudy.R
-import com.taild.jetstudy.domain.model.Session
 import com.taild.jetstudy.domain.model.Subject
-import com.taild.jetstudy.domain.model.Task
 import com.taild.jetstudy.presentation.components.AddSubjectDialog
 import com.taild.jetstudy.presentation.components.CountCard
 import com.taild.jetstudy.presentation.components.DeleteDialog
 import com.taild.jetstudy.presentation.components.SubjectCard
 import com.taild.jetstudy.presentation.components.studySessionsList
 import com.taild.jetstudy.presentation.components.taskList
+import com.taild.jetstudy.sessions
+import com.taild.jetstudy.subjects
+import com.taild.jetstudy.tasks
 
 @Composable
 fun DashboardScreen() {
-    val subjects = listOf(
-        Subject(id = 0, name = "English", goalHours = 10f, colors = Subject.subjectCardColors[0].map { Color(it) }),
-        Subject(id = 0, name = "Physics", goalHours = 10f, colors = Subject.subjectCardColors[1].map { Color(it) }),
-        Subject(id = 0, name = "Maths", goalHours = 10f, colors = Subject.subjectCardColors[2].map { Color(it) }),
-        Subject(id = 0, name = "Geology", goalHours = 10f, colors = Subject.subjectCardColors[3].map { Color(it) }),
-        Subject(id = 0, name = "Fine Arts", goalHours = 10f, colors = Subject.subjectCardColors[0].map { Color(it) })
-    )
-
-    val tasks = listOf(
-        Task(
-            id = 1,
-            subjectId = 0,
-            title = "Prepate notes",
-            description = "",
-            dueDate = 0L,
-            priority = 0,
-            relatedToSubject = "",
-            isCompleted = false
-        ),
-        Task(
-            id = 1,
-            subjectId = 0,
-            title = "Do homework",
-            description = "",
-            dueDate = 0L,
-            priority = 1,
-            relatedToSubject = "",
-            isCompleted = true
-        ),
-        Task(
-            id = 1,
-            subjectId = 0,
-            title = "Go Coaching",
-            description = "",
-            dueDate = 0L,
-            priority = 2,
-            relatedToSubject = "",
-            isCompleted = false
-        ),
-        Task(
-            id = 1,
-            subjectId = 0,
-            title = "Assignment",
-            description = "",
-            dueDate = 0L,
-            priority = 1,
-            relatedToSubject = "",
-            isCompleted = false
-        ),
-        Task(
-            id = 1,
-            subjectId = 0,
-            title = "Write poem",
-            description = "",
-            dueDate = 0L,
-            priority = 0,
-            relatedToSubject = "",
-            isCompleted = true
-        )
-    )
-
-    val sessions = listOf(
-        Session(
-            id = 0,
-            subjectId = 0,
-            relatedToSubject = "English",
-            date = 0L,
-            duration = 2
-        ),
-        Session(
-            id = 0,
-            subjectId = 0,
-            relatedToSubject = "English",
-            date = 0L,
-            duration = 2
-        ),
-        Session(
-            id = 0,
-            subjectId = 0,
-            relatedToSubject = "Physics",
-            date = 0L,
-            duration = 2
-        ),
-        Session(
-            id = 0,
-            subjectId = 0,
-            relatedToSubject = "Maths",
-            date = 0L,
-            duration = 2
-        )
-    )
 
     var isAddSubjectDialogOpen by rememberSaveable { mutableStateOf(false) }
     var isDeleteDialogOpen by rememberSaveable { mutableStateOf(false) }
@@ -172,6 +80,9 @@ fun DashboardScreen() {
     )
 
     DeleteDialog(
+        title = "Delete session?",
+        body = "Are you sure, you want to delete this session? Your studied hours will be reduced " +
+        "by this session's time. This action cannot be undone.",
         isOpen = isDeleteDialogOpen,
         onDismissRequest = { isDeleteDialogOpen = false },
         onConfirmButtonClick = { isDeleteDialogOpen = false }
@@ -218,6 +129,9 @@ fun DashboardScreen() {
                 }
             }
             taskList(
+                title = "UPCOMING TASKS",
+                emptyText = "You don't have any upcoming tasks.\n " +
+                "Click the + button in subject screen to add new task.",
                 tasks = tasks,
                 onTaskCardClick = {},
                 onCheckBoxClick = {}
@@ -226,6 +140,9 @@ fun DashboardScreen() {
                 Spacer(modifier = Modifier.height(20.dp))
             }
             studySessionsList(
+                title = "RECENT STUDY SESSIONS",
+                emptyText = "You don't have any recent study sessions.\n " +
+                "Start a study session to begin recording your progress.",
                 sessions = sessions,
                 onDeleteClick = { isDeleteDialogOpen = true }
             )

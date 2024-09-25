@@ -30,13 +30,15 @@ import com.taild.jetstudy.domain.model.Task
 import com.taild.jetstudy.utils.Priority
 
 fun LazyListScope.taskList(
+    title: String,
+    emptyText: String,
     tasks: List<Task>,
     onTaskCardClick: (Int) -> Unit,
     onCheckBoxClick: (Task) -> Unit
 ) {
     item {
         Text(
-            text = "UPCOMING TASKS",
+            text = title,
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(
                 start = 20.dp,
@@ -60,8 +62,7 @@ fun LazyListScope.taskList(
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = "You don't have any upcoming tasks.\n " +
-                            "Click the + button in subject screen to add new task.",
+                    text = emptyText,
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray,
                     textAlign = TextAlign.Center

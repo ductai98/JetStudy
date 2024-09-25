@@ -11,22 +11,21 @@ import androidx.compose.runtime.setValue
 
 @Composable
 fun DeleteDialog(
+    title: String,
+    body: String,
     isOpen: Boolean,
     onDismissRequest: () -> Unit,
     onConfirmButtonClick: () -> Unit,
 ) {
-    var subjectNameError by rememberSaveable { mutableStateOf<String?>(null) }
-    var goalHoursError by rememberSaveable { mutableStateOf<String?>(null) }
 
     if (isOpen) {
         AlertDialog(
             title = {
-                Text(text = "Delete session?")
+                Text(text = title)
             },
             text = {
                 Text(
-                    text = "Are you sure, you want to delete this session? Your studied hours will be reduced " +
-                            "by this session's time. This action cannot be undone."
+                    text = body
                 )
             },
             dismissButton = {

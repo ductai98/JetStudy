@@ -30,12 +30,14 @@ import com.taild.jetstudy.R
 import com.taild.jetstudy.domain.model.Session
 
 fun LazyListScope.studySessionsList(
+    title: String,
+    emptyText: String,
     sessions: List<Session>,
     onDeleteClick: (Session) -> Unit
 ) {
     item {
         Text(
-            text = "RECENT STUDY SESSIONS",
+            text = title,
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(
                 start = 20.dp,
@@ -59,8 +61,7 @@ fun LazyListScope.studySessionsList(
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = "You don't have any recent study sessions.\n " +
-                            "Start a study session to begin recording your progress.",
+                    text = emptyText,
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray,
                     textAlign = TextAlign.Center
