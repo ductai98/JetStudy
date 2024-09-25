@@ -6,6 +6,14 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        create("release") {
+            storeFile = file("/Users/ductai/Keystore/Untitled")
+            storePassword = "1597856845"
+            keyAlias = "taild"
+            keyPassword = "1597856845"
+        }
+    }
     namespace = "com.taild.jetstudy"
     compileSdk = 34
 
@@ -20,6 +28,7 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+        signingConfig = signingConfigs.getByName("release")
     }
 
     buildTypes {
