@@ -14,6 +14,7 @@ import com.taild.jetstudy.domain.model.Subject
 import com.taild.jetstudy.domain.model.Task
 import com.taild.jetstudy.presentation.dashboard.DashboardScreen
 import com.taild.jetstudy.presentation.subject.SubjectScreen
+import com.taild.jetstudy.presentation.task.TaskScreen
 import com.taild.jetstudy.presentation.theme.JetStudyTheme
 
 class MainActivity : ComponentActivity() {
@@ -22,7 +23,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             JetStudyTheme {
-                SubjectScreen()
+                TaskScreen()
             }
         }
     }
