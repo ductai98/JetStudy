@@ -43,17 +43,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.taild.jetstudy.presentation.components.DeleteDialog
+import com.taild.jetstudy.presentation.components.FutureOrPresentSelectableDates
 import com.taild.jetstudy.presentation.components.TaskCheckBox
 import com.taild.jetstudy.presentation.components.TaskDatePicker
 import com.taild.jetstudy.presentation.theme.JetStudyTheme
 import com.taild.jetstudy.presentation.theme.Red
 import com.taild.jetstudy.utils.Priority
+import com.taild.jetstudy.utils.toDateString
+import java.time.Instant
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskScreen() {
     var isDatePickerDialogOpen by rememberSaveable { mutableStateOf(false) }
-    val datePickerState = rememberDatePickerState()
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = Instant.now().toEpochMilli(),
+        selectableDates = FutureOrPresentSelectableDates
+    )
     var isDeleteDialogOpen by rememberSaveable { mutableStateOf(false) }
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
@@ -137,7 +143,7 @@ fun TaskScreen() {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "24 August, 2024",
+                    text = datePickerState.selectedDateMillis.toDateString(),
                     style = MaterialTheme.typography.bodyLarge
                 )
                 IconButton(onClick = { isDatePickerDialogOpen = true }) {
