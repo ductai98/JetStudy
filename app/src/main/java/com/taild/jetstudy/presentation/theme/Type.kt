@@ -32,7 +32,7 @@ val salsaFontFamily = FontFamily(
 
 
 // Set of Material typography styles to start with
-val Typography = Typography(
+val typography = Typography(
     displayLarge = TextStyle(
         fontFamily = salsaFontFamily,
         fontWeight = FontWeight.W600,

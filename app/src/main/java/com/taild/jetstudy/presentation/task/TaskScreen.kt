@@ -31,10 +31,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -42,14 +44,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.taild.jetstudy.domain.model.Subject
 import com.taild.jetstudy.presentation.components.DeleteDialog
 import com.taild.jetstudy.presentation.components.FutureOrPresentSelectableDates
+import com.taild.jetstudy.presentation.components.RelatedToSubjectSession
+import com.taild.jetstudy.presentation.components.SubjectListBottomSheet
 import com.taild.jetstudy.presentation.components.TaskCheckBox
 import com.taild.jetstudy.presentation.components.TaskDatePicker
 import com.taild.jetstudy.presentation.theme.JetStudyTheme
 import com.taild.jetstudy.presentation.theme.Red
+import com.taild.jetstudy.subjects
 import com.taild.jetstudy.utils.Priority
 import com.taild.jetstudy.utils.toDateString
+import kotlinx.coroutines.launch
 import java.time.Instant
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,12 +67,18 @@ fun TaskScreen() {
         initialSelectedDateMillis = Instant.now().toEpochMilli(),
         selectableDates = FutureOrPresentSelectableDates
     )
+
+    var isBottomSheetOpen by rememberSaveable { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState()
+    var subjectText by rememberSaveable { mutableStateOf("(Please select a subject)") }
     var isDeleteDialogOpen by rememberSaveable { mutableStateOf(false) }
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var titleError by rememberSaveable {
         mutableStateOf<String?>(null)
     }
+
+    val scope = rememberCoroutineScope()
 
     titleError = when {
         title.isBlank() -> "Please enter the task title."
@@ -88,6 +101,21 @@ fun TaskScreen() {
         isOpen = isDatePickerDialogOpen,
         onDismissRequest = { isDatePickerDialogOpen = false },
         onConfirmButtonClick = { isDatePickerDialogOpen = false }
+    )
+
+    SubjectListBottomSheet(
+        isOpen = isBottomSheetOpen,
+        sheetState = sheetState,
+        subjects = subjects,
+        onSubjectClick = {subject ->
+            scope.launch { sheetState.hide() }.invokeOnCompletion {
+                if (!sheetState.isVisible) {
+                    isBottomSheetOpen = false
+                }
+                subjectText = subject.name
+            }
+        },
+        onDismissRequest = { isBottomSheetOpen = false }
     )
 
     Scaffold(
@@ -138,7 +166,10 @@ fun TaskScreen() {
                 style = MaterialTheme.typography.bodySmall
             )
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+                    .clickable { isDatePickerDialogOpen = true },
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -146,12 +177,10 @@ fun TaskScreen() {
                     text = datePickerState.selectedDateMillis.toDateString(),
                     style = MaterialTheme.typography.bodyLarge
                 )
-                IconButton(onClick = { isDatePickerDialogOpen = true }) {
-                    Icon(
-                        imageVector = Icons.Default.DateRange,
-                        contentDescription = null
-                    )
-                }
+                Icon(
+                    imageVector = Icons.Default.DateRange,
+                    contentDescription = null
+                )
             }
             Spacer(modifier = Modifier.height(20.dp))
             Text(
@@ -178,26 +207,10 @@ fun TaskScreen() {
                 }
             }
             Spacer(modifier = Modifier.height(30.dp))
-            Text(
-                text = "Related to subject",
-                style = MaterialTheme.typography.bodySmall
+            RelatedToSubjectSession(
+                onSubjectClick = { isBottomSheetOpen = true },
+                subjectText = subjectText
             )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "English",
-                    style = MaterialTheme.typography.bodyLarge
-                )
-                IconButton(onClick = { /*TODO*/ }) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowDropDown,
-                        contentDescription = null
-                    )
-                }
-            }
 
             Button(
                 modifier = Modifier

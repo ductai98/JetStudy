@@ -13,6 +13,7 @@ import com.taild.jetstudy.domain.model.Session
 import com.taild.jetstudy.domain.model.Subject
 import com.taild.jetstudy.domain.model.Task
 import com.taild.jetstudy.presentation.dashboard.DashboardScreen
+import com.taild.jetstudy.presentation.session.SessionScreen
 import com.taild.jetstudy.presentation.subject.SubjectScreen
 import com.taild.jetstudy.presentation.task.TaskScreen
 import com.taild.jetstudy.presentation.theme.JetStudyTheme
@@ -23,7 +24,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             JetStudyTheme {
-                TaskScreen()
+                SessionScreen()
             }
         }
     }
@@ -34,14 +35,16 @@ val subjects = listOf(
     Subject(id = 0, name = "Physics", goalHours = 10f, colors = Subject.subjectCardColors[1].map { Color(it) }),
     Subject(id = 0, name = "Maths", goalHours = 10f, colors = Subject.subjectCardColors[2].map { Color(it) }),
     Subject(id = 0, name = "Geology", goalHours = 10f, colors = Subject.subjectCardColors[3].map { Color(it) }),
-    Subject(id = 0, name = "Fine Arts", goalHours = 10f, colors = Subject.subjectCardColors[0].map { Color(it) })
+    Subject(id = 0, name = "Fine Arts", goalHours = 10f, colors = Subject.subjectCardColors[0].map { Color(it) }),
+    Subject(id = 0, name = "Jetpack Compose", goalHours = 10f, colors = Subject.subjectCardColors[0].map { Color(it) }),
+    Subject(id = 0, name = "SwiftUI", goalHours = 10f, colors = Subject.subjectCardColors[0].map { Color(it) }),
 )
 
 val tasks = listOf(
     Task(
         id = 1,
         subjectId = 0,
-        title = "Prepate notes",
+        title = "Prepare notes",
         description = "",
         dueDate = 0L,
         priority = 0,
@@ -120,14 +123,6 @@ val sessions = listOf(
         duration = 2
     )
 )
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
 
 @Preview(showBackground = true)
 @Composable
