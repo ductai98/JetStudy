@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -6,13 +9,24 @@ plugins {
     kotlin("plugin.serialization") version "1.9.10"
 }
 
+fun loadPropertiesFile(): Properties {
+    val properties = Properties()
+    val propertiesFile = rootProject.file("config.properties") // Adjust the path if needed
+    if (propertiesFile.exists()) {
+        properties.load(FileInputStream(propertiesFile))
+    }
+    return properties
+}
+
+val env = loadPropertiesFile()
+
 android {
     signingConfigs {
         create("release") {
-            storeFile = file("/Users/ductai/Keystore/Untitled")
-            storePassword = "123456"
-            keyAlias = "test"
-            keyPassword = "123456"
+            storeFile = file(env.getProperty("storeFilePath").toString())
+            storePassword = env.getProperty("storePassword").toString()
+            keyAlias = env.getProperty("keyAlias").toString()
+            keyPassword = env.getProperty("keyPassword").toString()
         }
     }
     namespace = "com.taild.jetstudy"
