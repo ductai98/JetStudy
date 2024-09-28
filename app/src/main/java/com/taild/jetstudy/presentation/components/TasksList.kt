@@ -33,7 +33,7 @@ fun LazyListScope.taskList(
     title: String,
     emptyText: String,
     tasks: List<Task>,
-    onTaskCardClick: (Int) -> Unit,
+    onTaskCardClick: (Task) -> Unit,
     onCheckBoxClick: (Task) -> Unit
 ) {
     item {
@@ -75,7 +75,7 @@ fun LazyListScope.taskList(
         TaskCard(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
             task = task,
-            onClick = { onTaskCardClick(task.id) },
+            onClick = { onTaskCardClick(task) },
             onCheckBoxClick = { onCheckBoxClick(task) }
         )
     }

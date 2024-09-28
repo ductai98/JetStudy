@@ -43,18 +43,25 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.taild.jetstudy.domain.model.Subject
+import com.taild.jetstudy.domain.model.Task
 import com.taild.jetstudy.presentation.components.AddSubjectDialog
 import com.taild.jetstudy.presentation.components.CountCard
 import com.taild.jetstudy.presentation.components.DeleteDialog
+import com.taild.jetstudy.presentation.components.SubjectRoute
 import com.taild.jetstudy.presentation.components.studySessionsList
 import com.taild.jetstudy.presentation.components.taskList
 import com.taild.jetstudy.sessions
+import com.taild.jetstudy.subjects
 import com.taild.jetstudy.tasks
 
 const val TAG = "SubjectScreen"
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SubjectScreen() {
+fun SubjectScreen(
+    subject: Subject,
+    onBackClick: () -> Unit,
+    onTaskClick: (Task) -> Unit
+) {
     val listState = rememberLazyListState()
     //Log.d(TAG, "SubjectScreen: index = ${listState.firstVisibleItemIndex}")
     val isFABExtended by remember {
@@ -114,8 +121,9 @@ fun SubjectScreen() {
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             SubjectTopAppBar(
+                subjectName = subject.name,
                 scrollBehavior = scrollBehavior,
-                onBackClick = { /*TODO*/ },
+                onBackClick = onBackClick,
                 onDeleteClick = { isDeleteSubjectDialogOpen = true },
                 onEditClick = { isAddSubjectDialogOpen = true })
         },
@@ -148,7 +156,7 @@ fun SubjectScreen() {
                 emptyText = "You don't have any upcoming tasks.\n" +
                 "Click the + button to add new tasks",
                 tasks = tasks,
-                onTaskCardClick = {},
+                onTaskCardClick = {onTaskClick(it)},
                 onCheckBoxClick = {}
             )
             item {
@@ -179,6 +187,7 @@ fun SubjectScreen() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SubjectTopAppBar(
+    subjectName: String,
     scrollBehavior: TopAppBarScrollBehavior,
     onBackClick: () -> Unit,
     onDeleteClick: () -> Unit,
@@ -188,7 +197,7 @@ private fun SubjectTopAppBar(
         scrollBehavior = scrollBehavior,
         title = {
             Text(
-                text = "Subject",
+                text = subjectName,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.headlineSmall
@@ -274,5 +283,14 @@ private fun SubjectOverviewSection(
 @Preview
 @Composable
 fun SubjectScreenPreview() {
-    SubjectScreen()
+    SubjectScreen(
+        subject = Subject(
+            id = 0,
+            name = "English",
+            goalHours = 10f,
+            colors = Subject.subjectCardColors.random()
+        ),
+        onBackClick = {},
+        onTaskClick = {}
+    )
 }

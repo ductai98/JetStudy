@@ -1,5 +1,8 @@
 package com.taild.jetstudy.domain.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Session(
     val id: Int,
     val subjectId: Int,

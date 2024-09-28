@@ -34,21 +34,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.taild.jetstudy.R
 import com.taild.jetstudy.domain.model.Subject
 import com.taild.jetstudy.presentation.components.AddSubjectDialog
 import com.taild.jetstudy.presentation.components.CountCard
+import com.taild.jetstudy.presentation.components.DashboardRoute
 import com.taild.jetstudy.presentation.components.DeleteDialog
 import com.taild.jetstudy.presentation.components.SubjectCard
 import com.taild.jetstudy.presentation.components.studySessionsList
 import com.taild.jetstudy.presentation.components.taskList
+import com.taild.jetstudy.presentation.theme.JetStudyTheme
 import com.taild.jetstudy.sessions
 import com.taild.jetstudy.subjects
 import com.taild.jetstudy.tasks
 
 @Composable
-fun DashboardScreen() {
+fun DashboardScreen(
+    onSubjectClick: (Subject) -> Unit,
+    onStartSessionClick: () -> Unit
+) {
 
     var isAddSubjectDialogOpen by rememberSaveable { mutableStateOf(false) }
     var isDeleteDialogOpen by rememberSaveable { mutableStateOf(false) }
@@ -115,12 +121,13 @@ fun DashboardScreen() {
                     subjects = subjects,
                     onAddIconClick = {
                         isAddSubjectDialogOpen = true
-                    }
+                    },
+                    onSubjectClick = onSubjectClick
                 )
             }
             item {
                 Button(
-                    onClick = { },
+                    onClick = onStartSessionClick,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 48.dp, vertical = 12.dp)
@@ -191,6 +198,7 @@ private fun SubjectCardsSection(
     modifier: Modifier = Modifier,
     subjects: List<Subject>,
     onAddIconClick: () -> Unit,
+    onSubjectClick: (Subject) -> Unit
 ) {
     Column(
         modifier = modifier
@@ -238,11 +246,21 @@ private fun SubjectCardsSection(
             items(items = subjects) { subject ->
                 SubjectCard(
                     subjectName = subject.name,
-                    gradientColors = subject.colors,
-                    onClick = { }
+                    gradientColors = subject.colors.map { Color(it) },
+                    onClick = { onSubjectClick(subject) }
                 )
             }
         }
+    }
+}
+
+@Preview
+@Composable
+fun DashboardScreenPreview() {
+    JetStudyTheme {
+        DashboardScreen(
+            onSubjectClick = {},
+            onStartSessionClick = {})
     }
 }
 

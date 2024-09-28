@@ -5,13 +5,16 @@ coreKtx = "1.13.1"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
+kotlinxSerializationJson = "1.6.0"
 lifecycleRuntimeKtx = "2.8.6"
 activityCompose = "1.9.2"
 composeBom = "2024.04.01"
+navigationCompose = "2.8.1"
 uiTextGoogleFonts = "1.7.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 androidx-ui-text-google-fonts = { module = "androidx.compose.ui:ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -37,6 +40,7 @@ androidx-hilt-compiler = {group = "androidx.hilt", name = "hilt-compiler", versi
 androidx-hilt-navigation-compose = {group = "androidx.hilt", name = "hilt-navigation-compose", version = "1.2.0"}
 
 #room
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 room-runtime = { module = "androidx.room:room-runtime", version = "2.6.1" }
 room-compiler = { module = "androidx.room:room-compiler", version = "2.6.1" }
 room-ktx = { module = "androidx.room:room-ktx", version = "2.6.1" }

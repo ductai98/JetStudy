@@ -45,6 +45,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.taild.jetstudy.domain.model.Subject
+import com.taild.jetstudy.domain.model.Task
 import com.taild.jetstudy.presentation.components.DeleteDialog
 import com.taild.jetstudy.presentation.components.FutureOrPresentSelectableDates
 import com.taild.jetstudy.presentation.components.RelatedToSubjectSession
@@ -61,7 +62,10 @@ import java.time.Instant
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaskScreen() {
+fun TaskScreen(
+    task: Task,
+    onBackClick: () -> Unit
+) {
     var isDatePickerDialogOpen by rememberSaveable { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = Instant.now().toEpochMilli(),
@@ -72,8 +76,8 @@ fun TaskScreen() {
     val sheetState = rememberModalBottomSheetState()
     var subjectText by rememberSaveable { mutableStateOf("(Please select a subject)") }
     var isDeleteDialogOpen by rememberSaveable { mutableStateOf(false) }
-    var title by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
+    var title by remember { mutableStateOf(task.title) }
+    var description by remember { mutableStateOf(task.description) }
     var titleError by rememberSaveable {
         mutableStateOf<String?>(null)
     }
@@ -124,7 +128,7 @@ fun TaskScreen() {
                 exist = true,
                 completed = false,
                 checkBoxBorderColor = Red,
-                onBackButtonClick = { /*TODO*/ },
+                onBackButtonClick = onBackClick,
                 onDeleteButtonClick = { isDeleteDialogOpen = true },
                 onCheckBoxClick = {})
         }
@@ -297,6 +301,18 @@ private fun PriorityButton(
 @Composable
 fun TaskScreenPreview() {
     JetStudyTheme {
-        TaskScreen()
+        TaskScreen(
+            task = Task(
+                id = 1,
+                subjectId = 0,
+                title = "Prepare notes",
+                description = "",
+                dueDate = 0L,
+                priority = 0,
+                relatedToSubject = "",
+                isCompleted = false
+            ),
+            onBackClick = {}
+        )
     }
 }

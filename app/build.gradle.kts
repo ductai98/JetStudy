@@ -3,15 +3,16 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.google.dagger.hilt.android)
     alias(libs.plugins.google.devtools.ksp)
+    kotlin("plugin.serialization") version "1.9.10"
 }
 
 android {
     signingConfigs {
         create("release") {
             storeFile = file("/Users/ductai/Keystore/Untitled")
-            storePassword = "1597856845"
-            keyAlias = "taild"
-            keyPassword = "1597856845"
+            storePassword = "123456"
+            keyAlias = "test"
+            keyPassword = "123456"
         }
     }
     namespace = "com.taild.jetstudy"
@@ -88,6 +89,13 @@ dependencies {
 
     //Desugaring
     coreLibraryDesugaring(libs.android.tools.desugar)
+
+    //navigation
+    implementation(libs.androidx.navigation.compose)
+
+    //serialization
+    implementation(libs.kotlinx.serialization.json)
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

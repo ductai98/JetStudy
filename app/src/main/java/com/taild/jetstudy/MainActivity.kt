@@ -9,14 +9,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.taild.jetstudy.domain.model.Session
 import com.taild.jetstudy.domain.model.Subject
 import com.taild.jetstudy.domain.model.Task
+import com.taild.jetstudy.presentation.components.DashboardRoute
+import com.taild.jetstudy.presentation.components.JetStudyNavTypes
+import com.taild.jetstudy.presentation.components.SessionRoute
+import com.taild.jetstudy.presentation.components.SubjectRoute
+import com.taild.jetstudy.presentation.components.TaskRoute
 import com.taild.jetstudy.presentation.dashboard.DashboardScreen
 import com.taild.jetstudy.presentation.session.SessionScreen
 import com.taild.jetstudy.presentation.subject.SubjectScreen
 import com.taild.jetstudy.presentation.task.TaskScreen
 import com.taild.jetstudy.presentation.theme.JetStudyTheme
+import kotlin.reflect.typeOf
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,20 +34,74 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             JetStudyTheme {
-                SessionScreen()
+                val navController = rememberNavController()
+                NavHost(
+                    navController = navController,
+                    startDestination = DashboardRoute,
+                ) {
+                    composable<DashboardRoute> {
+                        DashboardScreen(
+                            onSubjectClick = {
+                                navController.navigate(SubjectRoute(it))
+                            },
+                            onStartSessionClick = {
+                                navController.navigate(SessionRoute)
+                            }
+                        )
+                    }
+
+                    composable<SubjectRoute>(
+                        typeMap = mapOf(
+                            typeOf<Subject>() to JetStudyNavTypes.SubjectType
+                        )
+                    ) {
+                        val argument = it.toRoute<SubjectRoute>()
+                        SubjectScreen(
+                            subject = argument.subject,
+                            onBackClick = {
+                                navController.navigateUp()
+                            },
+                            onTaskClick = {
+                                navController.navigate(TaskRoute(it))
+                            }
+                        )
+                    }
+
+                    composable<TaskRoute>(
+                        typeMap = mapOf(
+                            typeOf<Task>() to JetStudyNavTypes.TaskType
+                        )
+                    ){
+                        val argument = it.toRoute<TaskRoute>()
+                        TaskScreen(
+                            task = argument.task,
+                            onBackClick = {
+                                navController.navigateUp()
+                            }
+                        )
+                    }
+
+                    composable<SessionRoute> {
+                        SessionScreen(
+                            onBackClick = {
+                                navController.navigateUp()
+                            }
+                        )
+                    }
+                }
             }
         }
     }
 }
 
 val subjects = listOf(
-    Subject(id = 0, name = "English", goalHours = 10f, colors = Subject.subjectCardColors[0].map { Color(it) }),
-    Subject(id = 0, name = "Physics", goalHours = 10f, colors = Subject.subjectCardColors[1].map { Color(it) }),
-    Subject(id = 0, name = "Maths", goalHours = 10f, colors = Subject.subjectCardColors[2].map { Color(it) }),
-    Subject(id = 0, name = "Geology", goalHours = 10f, colors = Subject.subjectCardColors[3].map { Color(it) }),
-    Subject(id = 0, name = "Fine Arts", goalHours = 10f, colors = Subject.subjectCardColors[0].map { Color(it) }),
-    Subject(id = 0, name = "Jetpack Compose", goalHours = 10f, colors = Subject.subjectCardColors[0].map { Color(it) }),
-    Subject(id = 0, name = "SwiftUI", goalHours = 10f, colors = Subject.subjectCardColors[0].map { Color(it) }),
+    Subject(id = 0, name = "English", goalHours = 10f, colors = Subject.subjectCardColors[0]),
+    Subject(id = 0, name = "Physics", goalHours = 10f, colors = Subject.subjectCardColors[1]),
+    Subject(id = 0, name = "Maths", goalHours = 10f, colors = Subject.subjectCardColors[2]),
+    Subject(id = 0, name = "Geology", goalHours = 10f, colors = Subject.subjectCardColors[3]),
+    Subject(id = 0, name = "Fine Arts", goalHours = 10f, colors = Subject.subjectCardColors[0]),
+    Subject(id = 0, name = "Jetpack Compose", goalHours = 10f, colors = Subject.subjectCardColors[0]),
+    Subject(id = 0, name = "SwiftUI", goalHours = 10f, colors = Subject.subjectCardColors[0]),
 )
 
 val tasks = listOf(
@@ -128,6 +192,9 @@ val sessions = listOf(
 @Composable
 fun GreetingPreview() {
     JetStudyTheme {
-        DashboardScreen()
+        DashboardScreen(
+            onSubjectClick = {},
+            onStartSessionClick = {}
+        )
     }
 }

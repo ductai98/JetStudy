@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.taild.jetstudy.domain.model.Session
 import com.taild.jetstudy.presentation.components.DeleteDialog
 import com.taild.jetstudy.presentation.components.JetStudyButton
 import com.taild.jetstudy.presentation.components.RelatedToSubjectSession
@@ -46,7 +47,9 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SessionScreen() {
+fun SessionScreen(
+    onBackClick: () -> Unit
+) {
     var isBottomSheetOpen by rememberSaveable { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
     var subjectText by rememberSaveable { mutableStateOf("(Please select a subject)") }
@@ -206,6 +209,8 @@ private fun ButtonSession(
 @Composable
 fun SessionScreenPreview() {
     JetStudyTheme {
-        SessionScreen()
+        SessionScreen(
+            onBackClick = {}
+        )
     }
 }
