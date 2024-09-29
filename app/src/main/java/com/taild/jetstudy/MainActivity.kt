@@ -46,6 +46,9 @@ class MainActivity : ComponentActivity() {
                             },
                             onStartSessionClick = {
                                 navController.navigate(SessionRoute)
+                            },
+                            onTaskClick = {
+                                navController.navigate(TaskRoute(it))
                             }
                         )
                     }
@@ -194,7 +197,8 @@ fun GreetingPreview() {
     JetStudyTheme {
         DashboardScreen(
             onSubjectClick = {},
-            onStartSessionClick = {}
+            onStartSessionClick = {},
+            onTaskClick = {}
         )
     }
 }

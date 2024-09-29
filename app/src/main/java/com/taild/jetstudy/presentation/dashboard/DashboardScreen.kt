@@ -38,6 +38,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.taild.jetstudy.R
 import com.taild.jetstudy.domain.model.Subject
+import com.taild.jetstudy.domain.model.Task
 import com.taild.jetstudy.presentation.components.AddSubjectDialog
 import com.taild.jetstudy.presentation.components.CountCard
 import com.taild.jetstudy.presentation.components.DashboardRoute
@@ -53,7 +54,8 @@ import com.taild.jetstudy.tasks
 @Composable
 fun DashboardScreen(
     onSubjectClick: (Subject) -> Unit,
-    onStartSessionClick: () -> Unit
+    onStartSessionClick: () -> Unit,
+    onTaskClick: (Task) -> Unit
 ) {
 
     var isAddSubjectDialogOpen by rememberSaveable { mutableStateOf(false) }
@@ -140,7 +142,9 @@ fun DashboardScreen(
                 emptyText = "You don't have any upcoming tasks.\n " +
                 "Click the + button in subject screen to add new task.",
                 tasks = tasks,
-                onTaskCardClick = {},
+                onTaskCardClick = {
+                    onTaskClick(it)
+                },
                 onCheckBoxClick = {}
             )
             item {
@@ -260,7 +264,9 @@ fun DashboardScreenPreview() {
     JetStudyTheme {
         DashboardScreen(
             onSubjectClick = {},
-            onStartSessionClick = {})
+            onStartSessionClick = {},
+            onTaskClick = {}
+        )
     }
 }
 
