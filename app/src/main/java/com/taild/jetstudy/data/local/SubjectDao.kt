@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 interface SubjectDao {
 
     @Upsert
-    suspend fun upsert(subject: Subject)
+    suspend fun upsertSubject(subject: Subject)
 
     @Query("SELECT COUNT(*) FROM SUBJECTDTO")
     fun getSubjectCount(): Flow<Int>
@@ -25,5 +25,5 @@ interface SubjectDao {
     suspend fun deleteSubject(id: Int)
 
     @Query("SELECT * FROM SUBJECTDTO")
-    fun getAll(): Flow<List<Subject>>
+    fun getAllSubjects(): Flow<List<Subject>>
 }
