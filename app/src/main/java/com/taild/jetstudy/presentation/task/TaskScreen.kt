@@ -44,6 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.taild.jetstudy.domain.model.Subject
 import com.taild.jetstudy.domain.model.Task
 import com.taild.jetstudy.presentation.components.DeleteDialog
@@ -66,6 +67,8 @@ fun TaskScreen(
     task: Task,
     onBackClick: () -> Unit
 ) {
+    val viewModel : TaskViewModel = hiltViewModel()
+    
     var isDatePickerDialogOpen by rememberSaveable { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = Instant.now().toEpochMilli(),

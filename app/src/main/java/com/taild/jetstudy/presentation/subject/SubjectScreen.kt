@@ -42,6 +42,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.taild.jetstudy.domain.model.Subject
 import com.taild.jetstudy.domain.model.Task
 import com.taild.jetstudy.presentation.components.AddSubjectDialog
@@ -62,6 +63,8 @@ fun SubjectScreen(
     onBackClick: () -> Unit,
     onTaskClick: (Task) -> Unit
 ) {
+    val viewModel : SubjectViewModel = hiltViewModel()
+
     val listState = rememberLazyListState()
     //Log.d(TAG, "SubjectScreen: index = ${listState.firstVisibleItemIndex}")
     val isFABExtended by remember {

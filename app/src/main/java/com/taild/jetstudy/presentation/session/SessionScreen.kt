@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.taild.jetstudy.domain.model.Session
 import com.taild.jetstudy.presentation.components.DeleteDialog
 import com.taild.jetstudy.presentation.components.JetStudyButton
@@ -50,6 +51,8 @@ import kotlinx.coroutines.launch
 fun SessionScreen(
     onBackClick: () -> Unit
 ) {
+    val viewModel : SessionViewModel = hiltViewModel()
+
     var isBottomSheetOpen by rememberSaveable { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
     var subjectText by rememberSaveable { mutableStateOf("(Please select a subject)") }

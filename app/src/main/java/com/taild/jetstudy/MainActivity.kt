@@ -26,8 +26,10 @@ import com.taild.jetstudy.presentation.session.SessionScreen
 import com.taild.jetstudy.presentation.subject.SubjectScreen
 import com.taild.jetstudy.presentation.task.TaskScreen
 import com.taild.jetstudy.presentation.theme.JetStudyTheme
+import dagger.hilt.android.AndroidEntryPoint
 import kotlin.reflect.typeOf
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
