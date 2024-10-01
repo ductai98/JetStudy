@@ -7,6 +7,7 @@ import com.taild.jetstudy.domain.repository.TaskRepository
 import com.taild.jetstudy.utils.toTask
 import com.taild.jetstudy.utils.toTaskList
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
@@ -29,7 +30,11 @@ class TaskRepositoryImpl @Inject constructor(
         return taskDao.getTasksForSubject(subjectId).map { it.toTaskList() }
     }
 
-    override fun getAllTasks(): Flow<List<Task>> {
-        return taskDao.getAllTasks().map { it.toTaskList() }
+    override fun getUpcomingTasks(): Flow<List<Task>> {
+        return taskDao.getAllTasks().map { it.toTaskList().filter { task -> !task.isCompleted } }
+    }
+
+    private fun sortTasks(tasks: List<Task>): List<Task> {
+        return tasks.sortedBy { it.dueDate }.sortedByDescending { it.priority }
     }
 }

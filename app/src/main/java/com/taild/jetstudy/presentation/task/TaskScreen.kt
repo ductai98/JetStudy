@@ -18,7 +18,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
@@ -45,7 +44,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.taild.jetstudy.domain.model.Subject
 import com.taild.jetstudy.domain.model.Task
 import com.taild.jetstudy.presentation.components.DeleteDialog
 import com.taild.jetstudy.presentation.components.FutureOrPresentSelectableDates
@@ -55,7 +53,7 @@ import com.taild.jetstudy.presentation.components.TaskCheckBox
 import com.taild.jetstudy.presentation.components.TaskDatePicker
 import com.taild.jetstudy.presentation.theme.JetStudyTheme
 import com.taild.jetstudy.presentation.theme.Red
-import com.taild.jetstudy.subjects
+import com.taild.jetstudy.fakeSubjects
 import com.taild.jetstudy.utils.Priority
 import com.taild.jetstudy.utils.toDateString
 import kotlinx.coroutines.launch
@@ -113,7 +111,7 @@ fun TaskScreen(
     SubjectListBottomSheet(
         isOpen = isBottomSheetOpen,
         sheetState = sheetState,
-        subjects = subjects,
+        subjects = fakeSubjects,
         onSubjectClick = {subject ->
             scope.launch { sheetState.hide() }.invokeOnCompletion {
                 if (!sheetState.isVisible) {

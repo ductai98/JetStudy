@@ -23,10 +23,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -37,6 +42,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.taild.jetstudy.R
+import com.taild.jetstudy.domain.model.Session
 import com.taild.jetstudy.domain.model.Subject
 import com.taild.jetstudy.domain.model.Task
 import com.taild.jetstudy.presentation.components.AddSubjectDialog
@@ -46,13 +52,19 @@ import com.taild.jetstudy.presentation.components.SubjectCard
 import com.taild.jetstudy.presentation.components.studySessionsList
 import com.taild.jetstudy.presentation.components.taskList
 import com.taild.jetstudy.presentation.theme.JetStudyTheme
-import com.taild.jetstudy.sessions
-import com.taild.jetstudy.subjects
-import com.taild.jetstudy.tasks
+import com.taild.jetstudy.fakeSessions
+import com.taild.jetstudy.fakeTasks
+import com.taild.jetstudy.utils.SnackBarEvent
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun DashboardScreen(
     uiState : DashboardState,
+    tasks : List<Task>,
+    sessions : List<Session>,
+    snackBarEvent: SharedFlow<SnackBarEvent>,
     onEvent: (DashboardEvent) -> Unit,
     onSubjectClick: (Subject) -> Unit,
     onStartSessionClick: () -> Unit,
@@ -61,7 +73,20 @@ fun DashboardScreen(
 
     var isAddSubjectDialogOpen by rememberSaveable { mutableStateOf(false) }
     var isDeleteDialogOpen by rememberSaveable { mutableStateOf(false) }
-
+    val snackBarHostState = remember { SnackbarHostState() }
+    
+    LaunchedEffect(key1 = true) {
+        snackBarEvent.collectLatest { event ->
+            when(event) {
+                is SnackBarEvent.ShowSnackBar -> {
+                    snackBarHostState.showSnackbar(
+                        message = event.message,
+                        duration = event.duration
+                    )
+                }
+            }
+        }
+    }
 
     AddSubjectDialog(
         isOpen = isAddSubjectDialogOpen,
@@ -95,12 +120,16 @@ fun DashboardScreen(
             isDeleteDialogOpen = false 
         },
         onConfirmButtonClick = {
-            onEvent(DashboardEvent.OnDeleteSubject)
+            onEvent(DashboardEvent.
+            OnDeleteSession)
             isDeleteDialogOpen = false
         }
     )
 
     Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackBarHostState)
+        },
         topBar = {
             DashboardTopAppBar()
         }
@@ -117,14 +146,14 @@ fun DashboardScreen(
                         .padding(12.dp),
                     subjectCount = uiState.totalSubjectCount,
                     studiedHours = uiState.totalStudiedHours.toString(),
-                    goalHours = uiState.goalStudyHours)
+                    goalHours = uiState.totalGoalStudyHours.toString())
             }
             item {
                 SubjectCardsSection(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(12.dp),
-                    subjects = subjects,
+                    subjects = uiState.subjects,
                     onAddIconClick = {
                         isAddSubjectDialogOpen = true
                     },
@@ -273,6 +302,11 @@ fun DashboardScreenPreview() {
     JetStudyTheme {
         DashboardScreen(
             onEvent = {},
+            snackBarEvent = MutableStateFlow<SnackBarEvent>(
+                SnackBarEvent.ShowSnackBar("")
+            ),
+            tasks = fakeTasks,
+            sessions = fakeSessions,
             uiState = DashboardState(),
             onSubjectClick = {},
             onStartSessionClick = {},

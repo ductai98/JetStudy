@@ -7,6 +7,7 @@ import com.taild.jetstudy.domain.repository.SessionRepository
 import com.taild.jetstudy.utils.toSessionList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.take
 import javax.inject.Inject
 
 class SessionRepositoryImpl @Inject constructor(
@@ -24,6 +25,10 @@ class SessionRepositoryImpl @Inject constructor(
 
     override fun getAllSession(): Flow<List<Session>> {
         return sessionDao.getAllSession().map { it.toSessionList() }
+    }
+
+    override fun getRecentFiveSessions(): Flow<List<Session>> {
+        return getAllSession().map { it.sortedByDescending { session -> session.date } }.take(5)
     }
 
     override fun getRecentSessionForSubject(subjectId: Int): Flow<List<Session>> {

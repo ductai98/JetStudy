@@ -35,15 +35,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.taild.jetstudy.domain.model.Session
 import com.taild.jetstudy.presentation.components.DeleteDialog
 import com.taild.jetstudy.presentation.components.JetStudyButton
 import com.taild.jetstudy.presentation.components.RelatedToSubjectSession
 import com.taild.jetstudy.presentation.components.SubjectListBottomSheet
 import com.taild.jetstudy.presentation.components.studySessionsList
 import com.taild.jetstudy.presentation.theme.JetStudyTheme
-import com.taild.jetstudy.sessions
-import com.taild.jetstudy.subjects
+import com.taild.jetstudy.fakeSessions
+import com.taild.jetstudy.fakeSubjects
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -72,7 +71,7 @@ fun SessionScreen(
     SubjectListBottomSheet(
         isOpen = isBottomSheetOpen,
         sheetState = sheetState,
-        subjects = subjects,
+        subjects = fakeSubjects,
         onSubjectClick = {subject ->
             scope.launch { sheetState.hide() }.invokeOnCompletion {
                 if (!sheetState.isVisible) {
@@ -126,7 +125,7 @@ fun SessionScreen(
                 title = "STUDY SESSION HISTORY",
                 emptyText = "You don't have any recent study sessions.\n"+
                         "Start a study session to begin recording your progress.",
-                sessions = sessions,
+                sessions = fakeSessions,
                 onDeleteClick = { isDeleteSessionDialogOpen = true }
             )
         }

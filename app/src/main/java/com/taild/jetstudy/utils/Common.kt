@@ -1,5 +1,6 @@
 package com.taild.jetstudy.utils
 
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.ui.graphics.Color
 import com.taild.jetstudy.presentation.theme.Green
 import com.taild.jetstudy.presentation.theme.Orange
@@ -37,4 +38,11 @@ fun Long?.toDateString() : String {
 fun Long.toHours() : Float {
     val hours = this.toFloat() / 3600f
     return String.format(Locale.getDefault(), "%.2f", hours).toFloat()
+}
+
+sealed class SnackBarEvent {
+    data class ShowSnackBar(
+        val message: String,
+        val duration: SnackbarDuration = SnackbarDuration.Short
+    ) : SnackBarEvent()
 }

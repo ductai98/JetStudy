@@ -48,12 +48,10 @@ import com.taild.jetstudy.domain.model.Task
 import com.taild.jetstudy.presentation.components.AddSubjectDialog
 import com.taild.jetstudy.presentation.components.CountCard
 import com.taild.jetstudy.presentation.components.DeleteDialog
-import com.taild.jetstudy.presentation.components.SubjectRoute
 import com.taild.jetstudy.presentation.components.studySessionsList
 import com.taild.jetstudy.presentation.components.taskList
-import com.taild.jetstudy.sessions
-import com.taild.jetstudy.subjects
-import com.taild.jetstudy.tasks
+import com.taild.jetstudy.fakeSessions
+import com.taild.jetstudy.fakeTasks
 
 const val TAG = "SubjectScreen"
 @OptIn(ExperimentalMaterial3Api::class)
@@ -158,7 +156,7 @@ fun SubjectScreen(
                 title = "UPCOMING TASKS",
                 emptyText = "You don't have any upcoming tasks.\n" +
                 "Click the + button to add new tasks",
-                tasks = tasks,
+                tasks = fakeTasks,
                 onTaskCardClick = {onTaskClick(it)},
                 onCheckBoxClick = {}
             )
@@ -169,7 +167,7 @@ fun SubjectScreen(
                 title = "COMPLETED TASKS",
                 emptyText = "You don't have any completed tasks.\n" +
                 "Click the checkbox to mark a task as completed",
-                tasks = tasks,
+                tasks = fakeTasks,
                 onTaskCardClick = {},
                 onCheckBoxClick = {}
             )
@@ -180,7 +178,7 @@ fun SubjectScreen(
                 title = "RECENT STUDY SESSIONS",
                 emptyText = "You don't have any recent study sessions.\n"+
                 "Start a study session to begin recording your progress.",
-                sessions = sessions,
+                sessions = fakeSessions,
                 onDeleteClick = { isDeleteSessionDialogOpen = true }
             )
         }

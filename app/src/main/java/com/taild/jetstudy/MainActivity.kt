@@ -28,7 +28,9 @@ import com.taild.jetstudy.presentation.session.SessionScreen
 import com.taild.jetstudy.presentation.subject.SubjectScreen
 import com.taild.jetstudy.presentation.task.TaskScreen
 import com.taild.jetstudy.presentation.theme.JetStudyTheme
+import com.taild.jetstudy.utils.SnackBarEvent
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.reflect.typeOf
 
 @AndroidEntryPoint
@@ -46,9 +48,15 @@ class MainActivity : ComponentActivity() {
                     composable<DashboardRoute> {
                         val viewModel: DashboardViewModel = hiltViewModel()
                         val state by viewModel.state.collectAsStateWithLifecycle()
+                        val tasks by viewModel.tasks.collectAsStateWithLifecycle()
+                        val sessions by viewModel.sessions.collectAsStateWithLifecycle()
+                        val snackBarEvent = viewModel.snackBarEvent
                         DashboardScreen(
                             onEvent = viewModel::onEvent,
                             uiState = state,
+                            tasks = tasks,
+                            sessions = sessions,
+                            snackBarEvent = snackBarEvent,
                             onSubjectClick = {
                                 navController.navigate(SubjectRoute(it))
                             },
@@ -105,7 +113,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-val subjects = listOf(
+val fakeSubjects = listOf(
     Subject(id = 0, name = "English", goalHours = 10f, colors = Subject.subjectCardColors[0]),
     Subject(id = 0, name = "Physics", goalHours = 10f, colors = Subject.subjectCardColors[1]),
     Subject(id = 0, name = "Maths", goalHours = 10f, colors = Subject.subjectCardColors[2]),
@@ -115,7 +123,7 @@ val subjects = listOf(
     Subject(id = 0, name = "SwiftUI", goalHours = 10f, colors = Subject.subjectCardColors[0]),
 )
 
-val tasks = listOf(
+val fakeTasks = listOf(
     Task(
         id = 1,
         subjectId = 0,
@@ -168,7 +176,7 @@ val tasks = listOf(
     )
 )
 
-val sessions = listOf(
+val fakeSessions = listOf(
     Session(
         id = 0,
         subjectId = 0,
@@ -204,7 +212,12 @@ val sessions = listOf(
 fun GreetingPreview() {
     JetStudyTheme {
         DashboardScreen(
+            snackBarEvent = MutableStateFlow<SnackBarEvent>(
+                SnackBarEvent.ShowSnackBar("")
+            ),
             onEvent = {},
+            tasks = fakeTasks,
+            sessions = fakeSessions,
             uiState = DashboardState(),
             onSubjectClick = {},
             onStartSessionClick = {},
