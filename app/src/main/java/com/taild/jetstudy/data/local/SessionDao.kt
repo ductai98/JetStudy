@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import com.taild.jetstudy.data.dto.SessionDto
 import com.taild.jetstudy.domain.model.Session
 import kotlinx.coroutines.flow.Flow
 
@@ -11,16 +12,16 @@ import kotlinx.coroutines.flow.Flow
 interface SessionDao {
 
     @Insert
-    suspend fun insertSession(session: Session)
+    suspend fun insertSession(session: SessionDto)
 
     @Delete
-    suspend fun deleteSession(session: Session)
+    suspend fun deleteSession(session: SessionDto)
 
     @Query("SELECT * FROM SessionDto")
-    fun getAllSession(): Flow<List<Session>>
+    fun getAllSession(): Flow<List<SessionDto>>
 
     @Query("SELECT * FROM SessionDto WHERE subjectId = :subjectId")
-    fun getRecentSessionForSubject(subjectId: Int) : Flow<List<Session>>
+    fun getRecentSessionForSubject(subjectId: Int) : Flow<List<SessionDto>>
 
     @Query("SELECT SUM(duration) FROM SessionDto")
     fun getTotalSessionDuration() : Flow<Long>

@@ -36,13 +36,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.taild.jetstudy.R
 import com.taild.jetstudy.domain.model.Subject
 import com.taild.jetstudy.domain.model.Task
 import com.taild.jetstudy.presentation.components.AddSubjectDialog
 import com.taild.jetstudy.presentation.components.CountCard
-import com.taild.jetstudy.presentation.components.DashboardRoute
 import com.taild.jetstudy.presentation.components.DeleteDialog
 import com.taild.jetstudy.presentation.components.SubjectCard
 import com.taild.jetstudy.presentation.components.studySessionsList
@@ -54,17 +52,15 @@ import com.taild.jetstudy.tasks
 
 @Composable
 fun DashboardScreen(
+    uiState : DashboardState,
+    onEvent: (DashboardEvent) -> Unit,
     onSubjectClick: (Subject) -> Unit,
     onStartSessionClick: () -> Unit,
     onTaskClick: (Task) -> Unit
 ) {
-    val viewModel: DashboardViewModel = hiltViewModel()
 
     var isAddSubjectDialogOpen by rememberSaveable { mutableStateOf(false) }
     var isDeleteDialogOpen by rememberSaveable { mutableStateOf(false) }
-    var subjectName by rememberSaveable { mutableStateOf("") }
-    var goalHours by rememberSaveable { mutableStateOf("") }
-    var selectedColors by rememberSaveable { mutableStateOf(Subject.subjectCardColors.random()) }
 
 
     AddSubjectDialog(
@@ -73,19 +69,20 @@ fun DashboardScreen(
             isAddSubjectDialogOpen = false
         },
         onConfirmButtonClick = {
+            onEvent(DashboardEvent.OnSaveSubject)
             isAddSubjectDialogOpen = false
         },
-        selectedColors = selectedColors,
+        selectedColors = uiState.subjectCardColors,
         onColorChanged = {
-            selectedColors = it
+            onEvent(DashboardEvent.OnSubjectCardColorChange(it))
         },
-        subjectName = subjectName,
+        subjectName = uiState.subjectName,
         onSubjectNameChanged = {
-            subjectName = it
+            onEvent(DashboardEvent.OnSubjectNameChange(it))
         },
-        goalHours = goalHours,
+        goalHours = uiState.goalStudyHours,
         onGoalHoursChanged = {
-            goalHours = it
+            onEvent(DashboardEvent.OnGoalStudyHoursChange(it))
         }
     )
 
@@ -94,8 +91,13 @@ fun DashboardScreen(
         body = "Are you sure, you want to delete this session? Your studied hours will be reduced " +
         "by this session's time. This action cannot be undone.",
         isOpen = isDeleteDialogOpen,
-        onDismissRequest = { isDeleteDialogOpen = false },
-        onConfirmButtonClick = { isDeleteDialogOpen = false }
+        onDismissRequest = {
+            isDeleteDialogOpen = false 
+        },
+        onConfirmButtonClick = {
+            onEvent(DashboardEvent.OnDeleteSubject)
+            isDeleteDialogOpen = false
+        }
     )
 
     Scaffold(
@@ -113,9 +115,9 @@ fun DashboardScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(12.dp),
-                    subjectCount = 5,
-                    studiedHours = "10",
-                    goalHours = "10")
+                    subjectCount = uiState.totalSubjectCount,
+                    studiedHours = uiState.totalStudiedHours.toString(),
+                    goalHours = uiState.goalStudyHours)
             }
             item {
                 SubjectCardsSection(
@@ -147,7 +149,9 @@ fun DashboardScreen(
                 onTaskCardClick = {
                     onTaskClick(it)
                 },
-                onCheckBoxClick = {}
+                onCheckBoxClick = {
+                    onEvent(DashboardEvent.OnTaskCompletedChange(it))
+                }
             )
             item {
                 Spacer(modifier = Modifier.height(20.dp))
@@ -157,7 +161,10 @@ fun DashboardScreen(
                 emptyText = "You don't have any recent study sessions.\n " +
                 "Start a study session to begin recording your progress.",
                 sessions = sessions,
-                onDeleteClick = { isDeleteDialogOpen = true }
+                onDeleteClick = {
+                    onEvent(DashboardEvent.OnDeleteSessionClick(it))
+                    isDeleteDialogOpen = true
+                }
             )
         }
     }
@@ -265,6 +272,8 @@ private fun SubjectCardsSection(
 fun DashboardScreenPreview() {
     JetStudyTheme {
         DashboardScreen(
+            onEvent = {},
+            uiState = DashboardState(),
             onSubjectClick = {},
             onStartSessionClick = {},
             onTaskClick = {}

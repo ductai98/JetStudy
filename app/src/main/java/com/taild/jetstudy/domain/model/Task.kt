@@ -1,5 +1,6 @@
 package com.taild.jetstudy.domain.model
 
+import androidx.room.Entity
 import kotlinx.serialization.Serializable
 
 @Serializable

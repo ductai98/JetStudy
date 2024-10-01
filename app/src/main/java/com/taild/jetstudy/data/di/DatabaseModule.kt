@@ -24,4 +24,16 @@ object DatabaseModule {
             "jetstudy.db"
         ).build()
     }
+
+    @Provides
+    @Singleton
+    fun provideSubjectDao(db: AppDatabase) = db.subjectDao()
+
+    @Provides
+    @Singleton
+    fun provideSessionDao(db: AppDatabase) = db.sessionDao()
+
+    @Provides
+    @Singleton
+    fun provideTaskDao(db: AppDatabase) = db.taskDao()
 }

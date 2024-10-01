@@ -2,6 +2,7 @@ package com.taild.jetstudy.data.dto
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.taild.jetstudy.domain.model.Task
 
 @Entity
 data class TaskDto(
@@ -14,4 +15,17 @@ data class TaskDto(
     val priority: Int,
     val relatedToSubject: String,
     val isCompleted: Boolean
-)
+) {
+    companion object {
+        fun fromTask(task: Task) : TaskDto = TaskDto(
+            id = task.id,
+            subjectId = task.subjectId,
+            title = task.title,
+            description = task.description,
+            dueDate = task.dueDate,
+            priority = task.priority,
+            relatedToSubject = task.relatedToSubject,
+            isCompleted = task.isCompleted
+        )
+    }
+}

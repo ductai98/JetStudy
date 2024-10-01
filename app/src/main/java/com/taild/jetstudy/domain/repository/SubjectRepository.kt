@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface SubjectRepository {
     suspend fun upsertSubject(subject: Subject)
-    fun getSubjectCount(): Flow<Int>
+    fun getTotalSubjectCount(): Flow<Int>
     fun getTotalHoursCount(): Flow<Float>
     suspend fun getSubjectById(id: Int) : Subject?
     suspend fun deleteSubject(id: Int)

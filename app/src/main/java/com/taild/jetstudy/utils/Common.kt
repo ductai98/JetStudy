@@ -8,6 +8,8 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.Locale
+import kotlin.text.*
 
 enum class Priority(
     val title: String,
@@ -30,4 +32,9 @@ fun Long?.toDateString() : String {
             .toLocalDate()
     } ?: LocalDate.now()
     return date.format(DateTimeFormatter.ofPattern("dd MMMM, yyyy"))
+}
+
+fun Long.toHours() : Float {
+    val hours = this.toFloat() / 3600f
+    return String.format(Locale.getDefault(), "%.2f", hours).toFloat()
 }

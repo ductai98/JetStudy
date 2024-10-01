@@ -4,11 +4,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -22,6 +22,8 @@ import com.taild.jetstudy.presentation.components.SessionRoute
 import com.taild.jetstudy.presentation.components.SubjectRoute
 import com.taild.jetstudy.presentation.components.TaskRoute
 import com.taild.jetstudy.presentation.dashboard.DashboardScreen
+import com.taild.jetstudy.presentation.dashboard.DashboardState
+import com.taild.jetstudy.presentation.dashboard.DashboardViewModel
 import com.taild.jetstudy.presentation.session.SessionScreen
 import com.taild.jetstudy.presentation.subject.SubjectScreen
 import com.taild.jetstudy.presentation.task.TaskScreen
@@ -42,7 +44,11 @@ class MainActivity : ComponentActivity() {
                     startDestination = DashboardRoute,
                 ) {
                     composable<DashboardRoute> {
+                        val viewModel: DashboardViewModel = hiltViewModel()
+                        val state by viewModel.state.collectAsStateWithLifecycle()
                         DashboardScreen(
+                            onEvent = viewModel::onEvent,
+                            uiState = state,
                             onSubjectClick = {
                                 navController.navigate(SubjectRoute(it))
                             },
@@ -198,6 +204,8 @@ val sessions = listOf(
 fun GreetingPreview() {
     JetStudyTheme {
         DashboardScreen(
+            onEvent = {},
+            uiState = DashboardState(),
             onSubjectClick = {},
             onStartSessionClick = {},
             onTaskClick = {}
