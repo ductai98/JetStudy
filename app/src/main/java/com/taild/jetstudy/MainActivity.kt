@@ -26,6 +26,7 @@ import com.taild.jetstudy.presentation.dashboard.DashboardState
 import com.taild.jetstudy.presentation.dashboard.DashboardViewModel
 import com.taild.jetstudy.presentation.session.SessionScreen
 import com.taild.jetstudy.presentation.subject.SubjectScreen
+import com.taild.jetstudy.presentation.subject.SubjectViewModel
 import com.taild.jetstudy.presentation.task.TaskScreen
 import com.taild.jetstudy.presentation.theme.JetStudyTheme
 import com.taild.jetstudy.utils.SnackBarEvent
@@ -74,9 +75,11 @@ class MainActivity : ComponentActivity() {
                             typeOf<Subject>() to JetStudyNavTypes.SubjectType
                         )
                     ) {
-                        val argument = it.toRoute<SubjectRoute>()
+                        val viewModel: SubjectViewModel = hiltViewModel()
+                        val state by viewModel.state.collectAsStateWithLifecycle()
                         SubjectScreen(
-                            subject = argument.subject,
+                            uiState = state,
+                            onEvent = viewModel::onEvent,
                             onBackClick = {
                                 navController.navigateUp()
                             },

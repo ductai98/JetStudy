@@ -34,6 +34,19 @@ class TaskRepositoryImpl @Inject constructor(
         return taskDao.getAllTasks().map { it.toTaskList().filter { task -> !task.isCompleted } }
     }
 
+    override fun getUpcomingTasksForSubject(subjectId: Int): Flow<List<Task>> {
+        return getUpcomingTasks().map { it.filter { task -> task.subjectId == subjectId } }
+    }
+
+    override fun getCompletedTasksForSubject(subjectId: Int): Flow<List<Task>> {
+        return taskDao.getAllTasks().map {
+            it.toTaskList()
+                .filter { task ->
+                !task.isCompleted && task.subjectId == subjectId
+            }
+        }
+    }
+
     private fun sortTasks(tasks: List<Task>): List<Task> {
         return tasks.sortedBy { it.dueDate }.sortedByDescending { it.priority }
     }

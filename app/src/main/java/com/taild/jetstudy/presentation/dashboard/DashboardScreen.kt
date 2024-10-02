@@ -28,7 +28,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,6 +44,8 @@ import com.taild.jetstudy.R
 import com.taild.jetstudy.domain.model.Session
 import com.taild.jetstudy.domain.model.Subject
 import com.taild.jetstudy.domain.model.Task
+import com.taild.jetstudy.fakeSessions
+import com.taild.jetstudy.fakeTasks
 import com.taild.jetstudy.presentation.components.AddSubjectDialog
 import com.taild.jetstudy.presentation.components.CountCard
 import com.taild.jetstudy.presentation.components.DeleteDialog
@@ -52,8 +53,6 @@ import com.taild.jetstudy.presentation.components.SubjectCard
 import com.taild.jetstudy.presentation.components.studySessionsList
 import com.taild.jetstudy.presentation.components.taskList
 import com.taild.jetstudy.presentation.theme.JetStudyTheme
-import com.taild.jetstudy.fakeSessions
-import com.taild.jetstudy.fakeTasks
 import com.taild.jetstudy.utils.SnackBarEvent
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -79,10 +78,12 @@ fun DashboardScreen(
         snackBarEvent.collectLatest { event ->
             when(event) {
                 is SnackBarEvent.ShowSnackBar -> {
-                    snackBarHostState.showSnackbar(
-                        message = event.message,
-                        duration = event.duration
-                    )
+                    if (event.message.isNotBlank()) {
+                        snackBarHostState.showSnackbar(
+                            message = event.message,
+                            duration = event.duration
+                        )
+                    }
                 }
             }
         }

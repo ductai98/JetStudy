@@ -42,27 +42,21 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.taild.jetstudy.domain.model.Subject
 import com.taild.jetstudy.domain.model.Task
 import com.taild.jetstudy.presentation.components.AddSubjectDialog
 import com.taild.jetstudy.presentation.components.CountCard
 import com.taild.jetstudy.presentation.components.DeleteDialog
 import com.taild.jetstudy.presentation.components.studySessionsList
 import com.taild.jetstudy.presentation.components.taskList
-import com.taild.jetstudy.fakeSessions
-import com.taild.jetstudy.fakeTasks
 
-const val TAG = "SubjectScreen"
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SubjectScreen(
-    subject: Subject,
+    uiState : SubjectState,
+    onEvent: (SubjectEvent) -> Unit,
     onBackClick: () -> Unit,
     onTaskClick: (Task) -> Unit
 ) {
-    val viewModel : SubjectViewModel = hiltViewModel()
-
     val listState = rememberLazyListState()
     //Log.d(TAG, "SubjectScreen: index = ${listState.firstVisibleItemIndex}")
     val isFABExtended by remember {
@@ -73,9 +67,6 @@ fun SubjectScreen(
     var isAddSubjectDialogOpen by rememberSaveable { mutableStateOf(false) }
     var isDeleteSubjectDialogOpen by rememberSaveable { mutableStateOf(false) }
     var isDeleteSessionDialogOpen by rememberSaveable { mutableStateOf(false) }
-    var subjectName by rememberSaveable { mutableStateOf("") }
-    var goalHours by rememberSaveable { mutableStateOf("") }
-    var selectedColors by rememberSaveable { mutableStateOf(Subject.subjectCardColors.random()) }
 
 
     AddSubjectDialog(
@@ -84,19 +75,20 @@ fun SubjectScreen(
             isAddSubjectDialogOpen = false
         },
         onConfirmButtonClick = {
+            onEvent(SubjectEvent.OnUpdateSubject)
             isAddSubjectDialogOpen = false
         },
-        selectedColors = selectedColors,
+        selectedColors = uiState.subjectCardColors,
         onColorChanged = {
-            selectedColors = it
+            onEvent(SubjectEvent.OnSubjectCardColorChange(it))
         },
-        subjectName = subjectName,
+        subjectName = uiState.subjectName,
         onSubjectNameChanged = {
-            subjectName = it
+            onEvent(SubjectEvent.OnSubjectNameChange(it))
         },
-        goalHours = goalHours,
+        goalHours = uiState.goalStudyHours,
         onGoalHoursChanged = {
-            goalHours = it
+            onEvent(SubjectEvent.OnGoalStudyHoursChange(it))
         }
     )
 
@@ -106,7 +98,10 @@ fun SubjectScreen(
         body = "Are you sure, you want to delete this subject? All related " +
                 "task and studied sessions will be permanently removed. This action cannot be undone.",
         onDismissRequest = { isDeleteSubjectDialogOpen = false },
-        onConfirmButtonClick = { isDeleteSubjectDialogOpen = false }
+        onConfirmButtonClick = {
+            onEvent(SubjectEvent.OnDeleteSubject)
+            isDeleteSubjectDialogOpen = false
+        }
     )
 
     DeleteDialog(
@@ -114,15 +109,19 @@ fun SubjectScreen(
         title = "Delete session?",
         body = "Are you sure, you want to delete this session? Your studied hours will be reduced " +
                 "by this session's time. This action cannot be undone.",
-        onDismissRequest = { isDeleteSessionDialogOpen = false },
-        onConfirmButtonClick = { isDeleteSessionDialogOpen = false }
+        onDismissRequest = {
+            isDeleteSessionDialogOpen = false },
+        onConfirmButtonClick = {
+            onEvent(SubjectEvent.OnDeleteSession)
+            isDeleteSessionDialogOpen = false
+        }
     )
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             SubjectTopAppBar(
-                subjectName = subject.name,
+                subjectName = uiState.subjectName,
                 scrollBehavior = scrollBehavior,
                 onBackClick = onBackClick,
                 onDeleteClick = { isDeleteSubjectDialogOpen = true },
@@ -147,18 +146,20 @@ fun SubjectScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(12.dp),
-                    studiedHours = "10",
-                    goalHours = "15",
-                    progress = 0.75f
+                    studiedHours = uiState.studiedHours.toString(),
+                    goalHours = uiState.goalStudyHours,
+                    progress = uiState.progress
                 )
             }
             taskList(
                 title = "UPCOMING TASKS",
                 emptyText = "You don't have any upcoming tasks.\n" +
                 "Click the + button to add new tasks",
-                tasks = fakeTasks,
-                onTaskCardClick = {onTaskClick(it)},
-                onCheckBoxClick = {}
+                tasks = uiState.upcomingTasks,
+                onTaskCardClick = { onTaskClick(it) },
+                onCheckBoxClick = {
+                    onEvent(SubjectEvent.OnTaskCompleteChange(it))
+                }
             )
             item {
                 Spacer(modifier = Modifier.height(20.dp))
@@ -167,9 +168,11 @@ fun SubjectScreen(
                 title = "COMPLETED TASKS",
                 emptyText = "You don't have any completed tasks.\n" +
                 "Click the checkbox to mark a task as completed",
-                tasks = fakeTasks,
+                tasks = uiState.completedTasks,
                 onTaskCardClick = {},
-                onCheckBoxClick = {}
+                onCheckBoxClick = {
+                    onEvent(SubjectEvent.OnTaskCompleteChange(it))
+                }
             )
             item {
                 Spacer(modifier = Modifier.height(20.dp))
@@ -178,8 +181,11 @@ fun SubjectScreen(
                 title = "RECENT STUDY SESSIONS",
                 emptyText = "You don't have any recent study sessions.\n"+
                 "Start a study session to begin recording your progress.",
-                sessions = fakeSessions,
-                onDeleteClick = { isDeleteSessionDialogOpen = true }
+                sessions = uiState.recentSessions,
+                onDeleteClick = {
+                    onEvent(SubjectEvent.OnDeleteSessionClick(it))
+                    isDeleteSessionDialogOpen = true
+                }
             )
         }
     }
@@ -285,12 +291,8 @@ private fun SubjectOverviewSection(
 @Composable
 fun SubjectScreenPreview() {
     SubjectScreen(
-        subject = Subject(
-            id = 0,
-            name = "English",
-            goalHours = 10f,
-            colors = Subject.subjectCardColors.random()
-        ),
+        uiState = SubjectState(),
+        onEvent = {},
         onBackClick = {},
         onTaskClick = {}
     )
