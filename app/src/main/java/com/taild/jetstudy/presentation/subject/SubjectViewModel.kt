@@ -15,6 +15,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,7 +27,7 @@ class SubjectViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val subjectId: Int = savedStateHandle.toRoute<SubjectRoute>().subject.id ?: -1
+    private val subjectId: Int = savedStateHandle.toRoute<SubjectRoute>().subjectId ?: -1
 
     private val _state = MutableStateFlow(SubjectState())
     val state = combine(
@@ -47,7 +49,35 @@ class SubjectViewModel @Inject constructor(
         initialValue = SubjectState()
     )
 
+    init {
+        fetchSubject()
+    }
+
     fun onEvent(event: SubjectEvent) {
-        // TODO Implement later
+        when (event) {
+            is SubjectEvent.OnDeleteSession -> TODO()
+            is SubjectEvent.OnDeleteSessionClick -> TODO()
+            is SubjectEvent.OnDeleteSubject -> TODO()
+            is SubjectEvent.OnGoalStudyHoursChange -> TODO()
+            is SubjectEvent.OnSubjectCardColorChange -> TODO()
+            is SubjectEvent.OnSubjectNameChange -> TODO()
+            is SubjectEvent.OnTaskCompleteChange -> TODO()
+            is SubjectEvent.OnUpdateSubject -> TODO()
+        }
+    }
+
+    private fun fetchSubject() {
+        viewModelScope.launch {
+            subjectRepository.getSubjectById(subjectId)?.let { subject ->
+                _state.update {
+                    it.copy(
+                        subjectId = subject.id,
+                        subjectName = subject.name,
+                        goalStudyHours = subject.goalHours.toString(),
+                        subjectCardColors = subject.colors,
+                    )
+                }
+            }
+        }
     }
 }

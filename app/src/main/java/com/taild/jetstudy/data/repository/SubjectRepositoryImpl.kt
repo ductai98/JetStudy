@@ -1,7 +1,9 @@
 package com.taild.jetstudy.data.repository
 
 import com.taild.jetstudy.data.dto.SubjectDto
+import com.taild.jetstudy.data.local.SessionDao
 import com.taild.jetstudy.data.local.SubjectDao
+import com.taild.jetstudy.data.local.TaskDao
 import com.taild.jetstudy.domain.model.Subject
 import com.taild.jetstudy.domain.repository.SubjectRepository
 import com.taild.jetstudy.utils.toSubject
@@ -11,7 +13,9 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class SubjectRepositoryImpl @Inject constructor(
-    private val subjectDao: SubjectDao
+    private val subjectDao: SubjectDao,
+    private val taskDao: TaskDao,
+    private val sessionDao: SessionDao
 ) : SubjectRepository {
     override suspend fun upsertSubject(subject: Subject) {
         subjectDao.upsertSubject(SubjectDto.fromSubject(subject))
@@ -31,6 +35,8 @@ class SubjectRepositoryImpl @Inject constructor(
 
     override suspend fun deleteSubject(id: Int) {
         subjectDao.deleteSubject(id)
+        sessionDao.deleteSessionBySubjectId(id)
+        taskDao.deleteTaskBySubjectId(id)
     }
 
     override fun getAllSubject(): Flow<List<Subject>> {

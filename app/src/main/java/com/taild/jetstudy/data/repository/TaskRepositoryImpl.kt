@@ -35,7 +35,11 @@ class TaskRepositoryImpl @Inject constructor(
     }
 
     override fun getUpcomingTasksForSubject(subjectId: Int): Flow<List<Task>> {
-        return getUpcomingTasks().map { it.filter { task -> task.subjectId == subjectId } }
+        return getUpcomingTasks().map {
+            it.filter {
+                task -> task.subjectId == subjectId
+            }
+        }
     }
 
     override fun getCompletedTasksForSubject(subjectId: Int): Flow<List<Task>> {

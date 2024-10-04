@@ -30,5 +30,5 @@ interface SessionDao {
     fun getTotalSessionDurationForSubject(subjectId: Int) : Flow<Long>
 
     @Query("DELETE FROM SessionDto WHERE subjectId = :subjectId")
-    fun deleteSessionBySubjectId(subjectId: Int)
+    suspend fun deleteSessionBySubjectId(subjectId: Int)
 }

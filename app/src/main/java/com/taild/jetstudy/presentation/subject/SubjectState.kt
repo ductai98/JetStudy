@@ -5,7 +5,7 @@ import com.taild.jetstudy.domain.model.Subject
 import com.taild.jetstudy.domain.model.Task
 
 data class SubjectState(
-    val currentSubjectId: Int? = null,
+    val subjectId: Int? = null,
     val subjectName: String = "",
     val goalStudyHours: String = "",
     val studiedHours: Float = 0f,

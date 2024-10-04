@@ -49,7 +49,7 @@ class SessionRepositoryImpl @Inject constructor(
         return sessionDao.getTotalSessionDurationForSubject(subjectId)
     }
 
-    override fun deleteSessionBySubjectId(subjectId: Int) {
+    override suspend fun deleteSessionBySubjectId(subjectId: Int) {
         return sessionDao.deleteSessionBySubjectId(subjectId)
     }
 }
