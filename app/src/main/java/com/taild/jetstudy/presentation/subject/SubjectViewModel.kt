@@ -55,14 +55,39 @@ class SubjectViewModel @Inject constructor(
 
     fun onEvent(event: SubjectEvent) {
         when (event) {
+            is SubjectEvent.OnSubjectNameChange -> {
+                _state.update {
+                    it.copy(subjectName = event.name)
+                }
+            }
+            is SubjectEvent.OnGoalStudyHoursChange -> {
+                _state.update {
+                    it.copy(goalStudyHours = event.hours)
+                }
+            }
+            is SubjectEvent.OnSubjectCardColorChange -> {
+                _state.update {
+                    it.copy(subjectCardColors = event.colors)
+                }
+            }
+            is SubjectEvent.OnUpdateSubject -> updateSubject()
+            is SubjectEvent.OnTaskCompleteChange -> TODO()
             is SubjectEvent.OnDeleteSession -> TODO()
             is SubjectEvent.OnDeleteSessionClick -> TODO()
             is SubjectEvent.OnDeleteSubject -> TODO()
-            is SubjectEvent.OnGoalStudyHoursChange -> TODO()
-            is SubjectEvent.OnSubjectCardColorChange -> TODO()
-            is SubjectEvent.OnSubjectNameChange -> TODO()
-            is SubjectEvent.OnTaskCompleteChange -> TODO()
-            is SubjectEvent.OnUpdateSubject -> TODO()
+        }
+    }
+
+    private fun updateSubject() {
+        viewModelScope.launch {
+            subjectRepository.upsertSubject(
+                Subject(
+                    id = state.value.subjectId,
+                    name = state.value.subjectName,
+                    goalHours = state.value.goalStudyHours.toFloat(),
+                    colors = state.value.subjectCardColors
+                )
+            )
         }
     }
 
