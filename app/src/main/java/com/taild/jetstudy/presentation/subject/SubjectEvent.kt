@@ -12,5 +12,4 @@ sealed class SubjectEvent {
     data class OnSubjectNameChange(val name: String) : SubjectEvent()
     data class OnGoalStudyHoursChange(val hours: String) : SubjectEvent()
     data class OnDeleteSessionClick(val session: Session) : SubjectEvent()
-
 }

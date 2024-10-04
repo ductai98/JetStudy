@@ -62,10 +62,10 @@ import java.time.Instant
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskScreen(
-    task: Task,
+    uiState : TaskState,
+    onEvent: (TaskEvent) -> Unit,
     onBackClick: () -> Unit
 ) {
-    val viewModel : TaskViewModel = hiltViewModel()
     
     var isDatePickerDialogOpen by rememberSaveable { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState(
@@ -77,8 +77,6 @@ fun TaskScreen(
     val sheetState = rememberModalBottomSheetState()
     var subjectText by rememberSaveable { mutableStateOf("(Please select a subject)") }
     var isDeleteDialogOpen by rememberSaveable { mutableStateOf(false) }
-    var title by remember { mutableStateOf(task.title) }
-    var description by remember { mutableStateOf(task.description) }
     var titleError by rememberSaveable {
         mutableStateOf<String?>(null)
     }
@@ -86,9 +84,9 @@ fun TaskScreen(
     val scope = rememberCoroutineScope()
 
     titleError = when {
-        title.isBlank() -> "Please enter the task title."
-        title.length < 4 -> "Title must be at least 4 characters."
-        title.length > 30 -> "Title must not exceed 30 characters."
+        uiState.title.isBlank() -> "Please enter the task title."
+        uiState.title.length < 4 -> "Title must be at least 4 characters."
+        uiState.title.length > 30 -> "Title must not exceed 30 characters."
         else -> null
     }
 
@@ -98,14 +96,24 @@ fun TaskScreen(
         body = "Are you sure, you want to delete this task? " +
                 "This action can not be undone.",
         onDismissRequest = { isDeleteDialogOpen = false },
-        onConfirmButtonClick = { isDeleteDialogOpen = false }
+        onConfirmButtonClick = {
+            onEvent(TaskEvent.OnDeleteTask)
+            isDeleteDialogOpen = false
+        }
     )
 
     TaskDatePicker(
         state = datePickerState,
         isOpen = isDatePickerDialogOpen,
         onDismissRequest = { isDatePickerDialogOpen = false },
-        onConfirmButtonClick = { isDatePickerDialogOpen = false }
+        onConfirmButtonClick = {
+            onEvent(
+                TaskEvent.OnDueDateChange(
+                    datePickerState.selectedDateMillis
+                )
+            )
+            isDatePickerDialogOpen = false
+        }
     )
 
     SubjectListBottomSheet(
@@ -117,7 +125,7 @@ fun TaskScreen(
                 if (!sheetState.isVisible) {
                     isBottomSheetOpen = false
                 }
-                subjectText = subject.name
+                onEvent(TaskEvent.OnRelatedToSubjectChange(subject))
             }
         },
         onDismissRequest = { isBottomSheetOpen = false }
@@ -143,13 +151,15 @@ fun TaskScreen(
         ) {
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
-                value = title,
-                onValueChange = { title = it },
+                value = uiState.title,
+                onValueChange = {
+                    onEvent(TaskEvent.OnTitleChange(it))
+                },
                 label = {
                     Text(text = "Title")
                 },
                 singleLine = true,
-                isError = titleError != null && title.isNotBlank(),
+                isError = titleError != null && uiState.title.isNotBlank(),
                 supportingText = {
                     Text(
                         text = titleError.orEmpty()
@@ -159,8 +169,10 @@ fun TaskScreen(
             Spacer(modifier = Modifier.height(12.dp))
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
-                value = description,
-                onValueChange = { description = it },
+                value = uiState.description,
+                onValueChange = {
+                    onEvent(TaskEvent.OnDescriptionChange(it))
+                },
                 label = {
                     Text(text = "Description")
                 }
@@ -303,16 +315,8 @@ private fun PriorityButton(
 fun TaskScreenPreview() {
     JetStudyTheme {
         TaskScreen(
-            task = Task(
-                id = 1,
-                subjectId = 0,
-                title = "Prepare notes",
-                description = "",
-                dueDate = 0L,
-                priority = 0,
-                relatedToSubject = "",
-                isCompleted = false
-            ),
+            uiState = TaskState(),
+            onEvent = {},
             onBackClick = {}
         )
     }
