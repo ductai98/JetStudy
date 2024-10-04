@@ -23,6 +23,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -63,7 +64,7 @@ fun DashboardScreen(
     uiState : DashboardState,
     tasks : List<Task>,
     sessions : List<Session>,
-    snackBarEvent: SharedFlow<SnackBarEvent>,
+    snackBarEvent: SharedFlow<SnackBarEvent>?,
     onEvent: (DashboardEvent) -> Unit,
     onSubjectClick: (Subject) -> Unit,
     onStartSessionClick: () -> Unit,
@@ -75,15 +76,13 @@ fun DashboardScreen(
     val snackBarHostState = remember { SnackbarHostState() }
     
     LaunchedEffect(key1 = true) {
-        snackBarEvent.collectLatest { event ->
+        snackBarEvent?.collectLatest { event ->
             when(event) {
                 is SnackBarEvent.ShowSnackBar -> {
-                    if (event.message.isNotBlank()) {
-                        snackBarHostState.showSnackbar(
-                            message = event.message,
-                            duration = event.duration
-                        )
-                    }
+                    snackBarHostState.showSnackbar(
+                        message = event.message,
+                        duration = event.duration
+                    )
                 }
             }
         }
@@ -303,9 +302,7 @@ fun DashboardScreenPreview() {
     JetStudyTheme {
         DashboardScreen(
             onEvent = {},
-            snackBarEvent = MutableStateFlow<SnackBarEvent>(
-                SnackBarEvent.ShowSnackBar("")
-            ),
+            snackBarEvent = null,
             tasks = fakeTasks,
             sessions = fakeSessions,
             uiState = DashboardState(),
