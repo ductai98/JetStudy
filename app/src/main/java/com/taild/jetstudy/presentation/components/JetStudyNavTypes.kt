@@ -14,7 +14,7 @@ import kotlinx.serialization.json.Json
 object DashboardRoute
 
 @Serializable
-data class SubjectRoute(val subject: Subject)
+data class SubjectRoute(val subjectId: Int?)
 
 @Serializable
 data class TaskRoute(val task: Task)
@@ -23,7 +23,7 @@ data class TaskRoute(val task: Task)
 data object SessionRoute
 
 object JetStudyNavTypes {
-    val SubjectType = object : NavType<Subject>(isNullableAllowed = false) {
+    /*val SubjectType = object : NavType<Subject>(isNullableAllowed = false) {
         override fun get(bundle: Bundle, key: String): Subject? {
             return Json.decodeFromString(bundle.getString(key, null))
         }
@@ -39,7 +39,7 @@ object JetStudyNavTypes {
         override fun put(bundle: Bundle, key: String, value: Subject) {
             bundle.putString(key, Json.encodeToString(value))
         }
-    }
+    }*/
 
     val TaskType = object : NavType<Task>(isNullableAllowed = false) {
         override fun get(bundle: Bundle, key: String): Task? {

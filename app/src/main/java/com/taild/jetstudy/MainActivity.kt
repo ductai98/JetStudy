@@ -59,7 +59,7 @@ class MainActivity : ComponentActivity() {
                             sessions = sessions,
                             snackBarEvent = snackBarEvent,
                             onSubjectClick = {
-                                navController.navigate(SubjectRoute(it))
+                                navController.navigate(SubjectRoute(it.id))
                             },
                             onStartSessionClick = {
                                 navController.navigate(SessionRoute)
@@ -70,11 +70,7 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
-                    composable<SubjectRoute>(
-                        typeMap = mapOf(
-                            typeOf<Subject>() to JetStudyNavTypes.SubjectType
-                        )
-                    ) {
+                    composable<SubjectRoute> {
                         val viewModel: SubjectViewModel = hiltViewModel()
                         val state by viewModel.state.collectAsStateWithLifecycle()
                         SubjectScreen(
