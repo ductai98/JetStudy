@@ -4,6 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.tooling.preview.Preview
@@ -45,6 +47,8 @@ class MainActivity : ComponentActivity() {
                 NavHost(
                     navController = navController,
                     startDestination = DashboardRoute,
+                    enterTransition = { EnterTransition.None },
+                    exitTransition = { ExitTransition.None }
                 ) {
                     composable<DashboardRoute> {
                         val viewModel: DashboardViewModel = hiltViewModel()
@@ -73,9 +77,11 @@ class MainActivity : ComponentActivity() {
                     composable<SubjectRoute> {
                         val viewModel: SubjectViewModel = hiltViewModel()
                         val state by viewModel.state.collectAsStateWithLifecycle()
+                        val snackBarEvent = viewModel.snackBarEvent
                         SubjectScreen(
                             uiState = state,
                             onEvent = viewModel::onEvent,
+                            snackBarEvent = snackBarEvent,
                             onBackClick = {
                                 navController.navigateUp()
                             },

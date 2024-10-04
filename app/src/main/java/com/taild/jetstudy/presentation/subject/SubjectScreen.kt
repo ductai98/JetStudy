@@ -25,10 +25,13 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,12 +51,16 @@ import com.taild.jetstudy.presentation.components.CountCard
 import com.taild.jetstudy.presentation.components.DeleteDialog
 import com.taild.jetstudy.presentation.components.studySessionsList
 import com.taild.jetstudy.presentation.components.taskList
+import com.taild.jetstudy.utils.SnackBarEvent
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SubjectScreen(
     uiState : SubjectState,
     onEvent: (SubjectEvent) -> Unit,
+    snackBarEvent: SharedFlow<SnackBarEvent>?,
     onBackClick: () -> Unit,
     onTaskClick: (Task) -> Unit
 ) {
@@ -68,6 +75,20 @@ fun SubjectScreen(
     var isDeleteSubjectDialogOpen by rememberSaveable { mutableStateOf(false) }
     var isDeleteSessionDialogOpen by rememberSaveable { mutableStateOf(false) }
 
+    val snackBarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(key1 = true) {
+        snackBarEvent?.collectLatest { event ->
+            when(event) {
+                is SnackBarEvent.ShowSnackBar -> {
+                    snackBarHostState.showSnackbar(
+                        message = event.message,
+                        duration = event.duration
+                    )
+                }
+            }
+        }
+    }
 
     AddSubjectDialog(
         isOpen = isAddSubjectDialogOpen,
@@ -101,6 +122,9 @@ fun SubjectScreen(
         onConfirmButtonClick = {
             onEvent(SubjectEvent.OnDeleteSubject)
             isDeleteSubjectDialogOpen = false
+            if (!uiState.isLoading) {
+                onBackClick()
+            }
         }
     )
 
@@ -119,6 +143,7 @@ fun SubjectScreen(
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
         topBar = {
             SubjectTopAppBar(
                 subjectName = uiState.subjectName,
@@ -293,6 +318,7 @@ fun SubjectScreenPreview() {
     SubjectScreen(
         uiState = SubjectState(),
         onEvent = {},
+        snackBarEvent = null,
         onBackClick = {},
         onTaskClick = {}
     )

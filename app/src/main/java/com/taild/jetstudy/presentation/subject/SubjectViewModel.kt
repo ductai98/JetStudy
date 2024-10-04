@@ -1,5 +1,9 @@
 package com.taild.jetstudy.presentation.subject
 
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,14 +13,18 @@ import com.taild.jetstudy.domain.repository.SessionRepository
 import com.taild.jetstudy.domain.repository.SubjectRepository
 import com.taild.jetstudy.domain.repository.TaskRepository
 import com.taild.jetstudy.presentation.components.SubjectRoute
+import com.taild.jetstudy.utils.SnackBarEvent
 import com.taild.jetstudy.utils.toHours
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -37,17 +45,26 @@ class SubjectViewModel @Inject constructor(
         sessionRepository.getRecentTenSessionsForSubject(subjectId),
         sessionRepository.getTotalSessionDurationForSubject(subjectId)
     ) { state, upcomingTasks, completedTasks, recentSessions, totalSessionDuration ->
+        val progress by derivedStateOf {
+            val studiedHours = state.studiedHours
+            val goalHours = state.goalStudyHours.toFloatOrNull() ?: 100f
+            (studiedHours / goalHours).coerceIn(0f, 1f)
+        }
         state.copy(
             upcomingTasks = upcomingTasks,
             completedTasks = completedTasks,
             recentSessions = recentSessions,
-            studiedHours = totalSessionDuration.toHours()
+            studiedHours = totalSessionDuration.toHours(),
+            progress = progress
         )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = SubjectState()
     )
+
+    private val _snackBarEventFlow = MutableSharedFlow<SnackBarEvent>()
+    val snackBarEvent = _snackBarEventFlow.asSharedFlow()
 
     init {
         fetchSubject()
@@ -71,23 +88,79 @@ class SubjectViewModel @Inject constructor(
                 }
             }
             is SubjectEvent.OnUpdateSubject -> updateSubject()
+            is SubjectEvent.OnDeleteSubject -> deleteSubject()
             is SubjectEvent.OnTaskCompleteChange -> TODO()
             is SubjectEvent.OnDeleteSession -> TODO()
             is SubjectEvent.OnDeleteSessionClick -> TODO()
-            is SubjectEvent.OnDeleteSubject -> TODO()
+        }
+    }
+
+    private fun deleteSubject() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(isLoading = true)
+            }
+            try {
+                _state.value.subjectId?.let {
+                    subjectRepository.deleteSubject(it)
+                }
+                _snackBarEventFlow.emit(
+                    SnackBarEvent.ShowSnackBar(
+                        message = "Delete subject successfully"
+                    )
+                )
+            } catch (e: IOException) {
+                _snackBarEventFlow.emit(
+                    SnackBarEvent.ShowSnackBar(
+                        message = "Couldn't delete subject (IOException): ${e.message}",
+                        duration = SnackbarDuration.Long
+                    )
+                )
+            } catch (e: Exception) {
+                _snackBarEventFlow.emit(
+                    SnackBarEvent.ShowSnackBar(
+                        message = "Couldn't delete subject (UnknownError): ${e.message}",
+                        duration = SnackbarDuration.Long
+                    )
+                )
+            }
+            _state.update {
+                it.copy(isLoading = false)
+            }
         }
     }
 
     private fun updateSubject() {
         viewModelScope.launch {
-            subjectRepository.upsertSubject(
-                Subject(
-                    id = state.value.subjectId,
-                    name = state.value.subjectName,
-                    goalHours = state.value.goalStudyHours.toFloat(),
-                    colors = state.value.subjectCardColors
+            try {
+                subjectRepository.upsertSubject(
+                    Subject(
+                        id = state.value.subjectId,
+                        name = state.value.subjectName,
+                        goalHours = state.value.goalStudyHours.toFloat(),
+                        colors = state.value.subjectCardColors
+                    )
                 )
-            )
+                _snackBarEventFlow.emit(
+                    SnackBarEvent.ShowSnackBar(
+                        message = "Subject updated successfully"
+                    )
+                )
+            } catch (e: IOException) {
+                _snackBarEventFlow.emit(
+                    SnackBarEvent.ShowSnackBar(
+                        message = "Couldn't save subject (IOException): ${e.message}",
+                        duration = SnackbarDuration.Long
+                    )
+                )
+            } catch (e: Exception) {
+                _snackBarEventFlow.emit(
+                    SnackBarEvent.ShowSnackBar(
+                        message = "Couldn't save subject (UnknownError): ${e.message}",
+                        duration = SnackbarDuration.Long
+                    )
+                )
+            }
         }
     }
 
