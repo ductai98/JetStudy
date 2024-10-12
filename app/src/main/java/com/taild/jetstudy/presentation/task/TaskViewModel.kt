@@ -1,13 +1,17 @@
 package com.taild.jetstudy.presentation.task
 
+import androidx.compose.material3.SnackbarDuration
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.taild.jetstudy.domain.model.Task
 import com.taild.jetstudy.domain.repository.SubjectRepository
 import com.taild.jetstudy.domain.repository.TaskRepository
+import com.taild.jetstudy.utils.SnackBarEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
@@ -34,6 +38,9 @@ class TaskViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = TaskState()
     )
+
+    private val _snackBarEvent = MutableSharedFlow<SnackBarEvent>()
+    val snackBarEvent = _snackBarEvent.asSharedFlow()
 
     fun onEvent(event: TaskEvent) {
         when (event) {
@@ -91,20 +98,44 @@ class TaskViewModel @Inject constructor(
         viewModelScope.launch {
             val state = _state.value
             if (state.subjectId == null || state.relatedToSubject.isNullOrBlank()) {
+                _snackBarEvent.emit(
+                    SnackBarEvent.ShowSnackBar(
+                        message = "Please select subject related to the task",
+                        duration = SnackbarDuration.Long
+                    )
+                )
                 return@launch
             }
-            taskRepository.upsertTask(
-                task = Task(
-                    id = _state.value.taskId ?: 0,
-                    subjectId = _state.value.subjectId!!,
-                    relatedToSubject = _state.value.relatedToSubject!!,
-                    title = _state.value.title,
-                    description = _state.value.description,
-                    dueDate = _state.value.dueDate ?: Instant.now().toEpochMilli(),
-                    isCompleted = _state.value.isTaskCompleted,
-                    priority = _state.value.priority.ordinal
+            try {
+                taskRepository.upsertTask(
+                    task = Task(
+                        id = _state.value.taskId ?: 0,
+                        subjectId = _state.value.subjectId!!,
+                        relatedToSubject = _state.value.relatedToSubject!!,
+                        title = _state.value.title,
+                        description = _state.value.description,
+                        dueDate = _state.value.dueDate ?: Instant.now().toEpochMilli(),
+                        isCompleted = _state.value.isTaskCompleted,
+                        priority = _state.value.priority.ordinal
+                    )
                 )
-            )
+                _snackBarEvent.emit(
+                    SnackBarEvent.ShowSnackBar(
+                        message = "Task saved successfully"
+                    )
+                )
+                _snackBarEvent.emit(
+                    SnackBarEvent.NavigateUp
+                )
+            } catch (e: Exception) {
+                _snackBarEvent.emit(
+                    SnackBarEvent.ShowSnackBar(
+                        message = "Couldn't save task. ${e.message}",
+                        duration = SnackbarDuration.Long
+                    )
+                )
+            }
+
         }
     }
 }

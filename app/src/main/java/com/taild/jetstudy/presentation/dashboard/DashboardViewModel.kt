@@ -12,6 +12,7 @@ import com.taild.jetstudy.domain.repository.TaskRepository
 import com.taild.jetstudy.utils.SnackBarEvent
 import com.taild.jetstudy.utils.toHours
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -61,9 +62,7 @@ class DashboardViewModel @Inject constructor(
             initialValue = emptyList()
         )
 
-    private val _snackBarEvent = MutableStateFlow<SnackBarEvent>(
-        SnackBarEvent.ShowSnackBar("")
-    )
+    private val _snackBarEvent = MutableSharedFlow<SnackBarEvent>()
     val snackBarEvent = _snackBarEvent.asSharedFlow()
 
     fun onEvent(event: DashboardEvent ) {

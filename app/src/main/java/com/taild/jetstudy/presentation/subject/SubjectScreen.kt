@@ -62,7 +62,8 @@ fun SubjectScreen(
     onEvent: (SubjectEvent) -> Unit,
     snackBarEvent: SharedFlow<SnackBarEvent>?,
     onBackClick: () -> Unit,
-    onTaskClick: (Task) -> Unit
+    onTaskClick: (Task) -> Unit,
+    onAddTaskClick: () -> Unit
 ) {
     val listState = rememberLazyListState()
     //Log.d(TAG, "SubjectScreen: index = ${listState.firstVisibleItemIndex}")
@@ -86,6 +87,8 @@ fun SubjectScreen(
                         duration = event.duration
                     )
                 }
+
+                is SnackBarEvent.NavigateUp -> {}
             }
         }
     }
@@ -156,7 +159,7 @@ fun SubjectScreen(
             ExtendedFloatingActionButton(
                 text = { Text(text = "Add Task") },
                 icon = { Icon(imageVector = Icons.Rounded.Add, contentDescription = null) },
-                onClick = { /*TODO*/ },
+                onClick = onAddTaskClick,
                 expanded = isFABExtended)
         }
     ) { innerPadding ->
@@ -320,6 +323,7 @@ fun SubjectScreenPreview() {
         onEvent = {},
         snackBarEvent = null,
         onBackClick = {},
-        onTaskClick = {}
+        onTaskClick = {},
+        onAddTaskClick = {}
     )
 }

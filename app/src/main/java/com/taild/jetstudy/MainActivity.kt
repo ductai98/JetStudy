@@ -88,6 +88,18 @@ class MainActivity : ComponentActivity() {
                             },
                             onTaskClick = {
                                 navController.navigate(TaskRoute(it))
+                            },
+                            onAddTaskClick = {
+                                navController.navigate(TaskRoute(task = Task(
+                                    id = -1,
+                                    subjectId = -1,
+                                    title = "",
+                                    description = "",
+                                    dueDate = 0L,
+                                    priority = 0,
+                                    relatedToSubject = "Please select a subject",
+                                    isCompleted = false
+                                )))
                             }
                         )
                     }
@@ -100,9 +112,11 @@ class MainActivity : ComponentActivity() {
                         val viewModel: TaskViewModel = hiltViewModel()
                         val state by viewModel.state.collectAsStateWithLifecycle()
                         val onEvent = viewModel::onEvent
+                        val snackBarEvent = viewModel.snackBarEvent
                         TaskScreen(
                             uiState = state,
                             onEvent = onEvent,
+                            snackBarEvent = snackBarEvent,
                             onBackClick = {
                                 navController.navigateUp()
                             }

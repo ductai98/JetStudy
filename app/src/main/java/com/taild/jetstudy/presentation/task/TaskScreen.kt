@@ -27,11 +27,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,7 +58,10 @@ import com.taild.jetstudy.presentation.theme.JetStudyTheme
 import com.taild.jetstudy.presentation.theme.Red
 import com.taild.jetstudy.fakeSubjects
 import com.taild.jetstudy.utils.Priority
+import com.taild.jetstudy.utils.SnackBarEvent
 import com.taild.jetstudy.utils.toDateString
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.time.Instant
 
@@ -64,6 +70,7 @@ import java.time.Instant
 fun TaskScreen(
     uiState : TaskState,
     onEvent: (TaskEvent) -> Unit,
+    snackBarEvent: SharedFlow<SnackBarEvent>?,
     onBackClick: () -> Unit
 ) {
     
@@ -87,6 +94,24 @@ fun TaskScreen(
         uiState.title.length < 4 -> "Title must be at least 4 characters."
         uiState.title.length > 30 -> "Title must not exceed 30 characters."
         else -> null
+    }
+
+    val snackBarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(key1 = true) {
+        snackBarEvent?.collectLatest { event ->
+            when(event) {
+                is SnackBarEvent.ShowSnackBar -> {
+                    snackBarHostState.showSnackbar(
+                        message = event.message,
+                        duration = event.duration
+                    )
+                }
+                is SnackBarEvent.NavigateUp -> {
+                    onBackClick()
+                }
+            }
+        }
     }
 
     DeleteDialog(
@@ -141,7 +166,8 @@ fun TaskScreen(
                 onCheckBoxClick = {
                     onEvent(TaskEvent.OnIsCompletedChange)
                 })
-        }
+        },
+        snackbarHost = { SnackbarHost(hostState = snackBarHostState) }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -180,7 +206,7 @@ fun TaskScreen(
             )
             Spacer(modifier = Modifier.height(20.dp))
             Text(
-                text = uiState.dueDate.toDateString(),
+                text = "Due date",
                 style = MaterialTheme.typography.bodySmall
             )
             Row(
@@ -320,6 +346,7 @@ private fun PriorityButton(
 fun TaskScreenPreview() {
     JetStudyTheme {
         TaskScreen(
+            snackBarEvent = null,
             uiState = TaskState(),
             onEvent = {},
             onBackClick = {}
