@@ -75,7 +75,6 @@ fun TaskScreen(
 
     var isBottomSheetOpen by rememberSaveable { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
-    var subjectText by rememberSaveable { mutableStateOf("(Please select a subject)") }
     var isDeleteDialogOpen by rememberSaveable { mutableStateOf(false) }
     var titleError by rememberSaveable {
         mutableStateOf<String?>(null)
@@ -119,7 +118,7 @@ fun TaskScreen(
     SubjectListBottomSheet(
         isOpen = isBottomSheetOpen,
         sheetState = sheetState,
-        subjects = fakeSubjects,
+        subjects = uiState.subjects,
         onSubjectClick = {subject ->
             scope.launch { sheetState.hide() }.invokeOnCompletion {
                 if (!sheetState.isVisible) {
@@ -134,12 +133,14 @@ fun TaskScreen(
     Scaffold(
         topBar = {
             TaskScreenTopBar(
-                exist = true,
-                completed = false,
-                checkBoxBorderColor = Red,
+                exist = uiState.taskId != null,
+                completed = uiState.isTaskCompleted,
+                checkBoxBorderColor = uiState.priority.color,
                 onBackButtonClick = onBackClick,
                 onDeleteButtonClick = { isDeleteDialogOpen = true },
-                onCheckBoxClick = {})
+                onCheckBoxClick = {
+                    onEvent(TaskEvent.OnIsCompletedChange)
+                })
         }
     ) { innerPadding ->
         Column(
@@ -179,7 +180,7 @@ fun TaskScreen(
             )
             Spacer(modifier = Modifier.height(20.dp))
             Text(
-                text = "Due Date",
+                text = uiState.dueDate.toDateString(),
                 style = MaterialTheme.typography.bodySmall
             )
             Row(
@@ -213,27 +214,31 @@ fun TaskScreen(
                         modifier = Modifier.weight(1f),
                         label = it.title,
                         backgroundColor = it.color,
-                        borderColor = if (it == Priority.MEDIUM) {
+                        borderColor = if (it == uiState.priority) {
                             Color.White
                         } else { Color.Transparent },
-                        labelColor = if (it == Priority.MEDIUM) {
+                        labelColor = if (it == uiState.priority) {
                             Color.White
                         } else { Color.White.copy(alpha = 0.7f) },
-                        onClick = {}
+                        onClick = {
+                            onEvent(TaskEvent.OnPriorityChange(it))
+                        }
                     )
                 }
             }
             Spacer(modifier = Modifier.height(30.dp))
             RelatedToSubjectSession(
                 onSubjectClick = { isBottomSheetOpen = true },
-                subjectText = subjectText
+                subjectText = uiState.relatedToSubject
             )
 
             Button(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 20.dp),
-                onClick = { /*TODO*/ },
+                onClick = {
+                    onEvent(TaskEvent.OnSaveTask)
+              },
                 enabled = titleError == null
             ) {
                 Text(text = "Save")

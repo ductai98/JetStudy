@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 fun RelatedToSubjectSession(
     modifier: Modifier = Modifier,
     onSubjectClick: () -> Unit,
-    subjectText: String
+    subjectText: String?
 ) {
     Column(
         modifier = modifier
@@ -34,8 +34,9 @@ fun RelatedToSubjectSession(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
+            val subject = subjectText ?: "(Please select a subject)"
             Text(
-                text = subjectText,
+                text = subject,
                 style = MaterialTheme.typography.bodyLarge
             )
             Icon(

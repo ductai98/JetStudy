@@ -30,6 +30,7 @@ import com.taild.jetstudy.presentation.session.SessionScreen
 import com.taild.jetstudy.presentation.subject.SubjectScreen
 import com.taild.jetstudy.presentation.subject.SubjectViewModel
 import com.taild.jetstudy.presentation.task.TaskScreen
+import com.taild.jetstudy.presentation.task.TaskViewModel
 import com.taild.jetstudy.presentation.theme.JetStudyTheme
 import com.taild.jetstudy.utils.SnackBarEvent
 import dagger.hilt.android.AndroidEntryPoint
@@ -96,9 +97,12 @@ class MainActivity : ComponentActivity() {
                             typeOf<Task>() to JetStudyNavTypes.TaskType
                         )
                     ){
-                        val argument = it.toRoute<TaskRoute>()
+                        val viewModel: TaskViewModel = hiltViewModel()
+                        val state by viewModel.state.collectAsStateWithLifecycle()
+                        val onEvent = viewModel::onEvent
                         TaskScreen(
-                            task = argument.task,
+                            uiState = state,
+                            onEvent = onEvent,
                             onBackClick = {
                                 navController.navigateUp()
                             }
