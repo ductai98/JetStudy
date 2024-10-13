@@ -70,7 +70,7 @@ class MainActivity : ComponentActivity() {
                                 navController.navigate(SessionRoute)
                             },
                             onTaskClick = {
-                                navController.navigate(TaskRoute(it))
+                                navController.navigate(TaskRoute(it.id, null))
                             }
                         )
                     }
@@ -87,28 +87,15 @@ class MainActivity : ComponentActivity() {
                                 navController.navigateUp()
                             },
                             onTaskClick = {
-                                navController.navigate(TaskRoute(it))
+                                navController.navigate(TaskRoute(it.id, null))
                             },
-                            onAddTaskClick = {
-                                navController.navigate(TaskRoute(task = Task(
-                                    id = -1,
-                                    subjectId = -1,
-                                    title = "",
-                                    description = "",
-                                    dueDate = 0L,
-                                    priority = 0,
-                                    relatedToSubject = "Please select a subject",
-                                    isCompleted = false
-                                )))
+                            onAddTaskClick = { subjectId ->
+                                navController.navigate(TaskRoute(null, subjectId))
                             }
                         )
                     }
 
-                    composable<TaskRoute>(
-                        typeMap = mapOf(
-                            typeOf<Task>() to JetStudyNavTypes.TaskType
-                        )
-                    ){
+                    composable<TaskRoute> {
                         val viewModel: TaskViewModel = hiltViewModel()
                         val state by viewModel.state.collectAsStateWithLifecycle()
                         val onEvent = viewModel::onEvent

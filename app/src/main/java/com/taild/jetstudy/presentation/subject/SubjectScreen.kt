@@ -63,7 +63,7 @@ fun SubjectScreen(
     snackBarEvent: SharedFlow<SnackBarEvent>?,
     onBackClick: () -> Unit,
     onTaskClick: (Task) -> Unit,
-    onAddTaskClick: () -> Unit
+    onAddTaskClick: (Int?) -> Unit
 ) {
     val listState = rememberLazyListState()
     //Log.d(TAG, "SubjectScreen: index = ${listState.firstVisibleItemIndex}")
@@ -159,7 +159,7 @@ fun SubjectScreen(
             ExtendedFloatingActionButton(
                 text = { Text(text = "Add Task") },
                 icon = { Icon(imageVector = Icons.Rounded.Add, contentDescription = null) },
-                onClick = onAddTaskClick,
+                onClick = { onAddTaskClick(uiState.subjectId) },
                 expanded = isFABExtended)
         }
     ) { innerPadding ->
@@ -197,7 +197,9 @@ fun SubjectScreen(
                 emptyText = "You don't have any completed tasks.\n" +
                 "Click the checkbox to mark a task as completed",
                 tasks = uiState.completedTasks,
-                onTaskCardClick = {},
+                onTaskCardClick = {
+                    onTaskClick(it)
+                },
                 onCheckBoxClick = {
                     onEvent(SubjectEvent.OnTaskCompleteChange(it))
                 }

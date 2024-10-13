@@ -14,16 +14,16 @@ import javax.inject.Inject
 class TaskRepositoryImpl @Inject constructor(
     private val taskDao: TaskDao
 ) : TaskRepository {
-    override suspend fun upsertTask(task: Task) {
-        taskDao.upsertTask(TaskDto.fromTask(task))
+    override suspend fun upsertTask(task: TaskDto) {
+        taskDao.upsertTask(task)
     }
 
     override suspend fun deleteTask(id: Int) {
         taskDao.deleteTask(id)
     }
 
-    override suspend fun getTaskById(id: Int): Task {
-        return taskDao.getTaskById(id).toTask()
+    override suspend fun getTaskById(id: Int): Task? {
+        return taskDao.getTaskById(id)?.toTask()
     }
 
     override fun getTasksForSubject(subjectId: Int): Flow<List<Task>> {
@@ -46,7 +46,7 @@ class TaskRepositoryImpl @Inject constructor(
         return taskDao.getAllTasks().map {
             it.toTaskList()
                 .filter { task ->
-                !task.isCompleted && task.subjectId == subjectId
+                task.isCompleted && task.subjectId == subjectId
             }
         }
     }

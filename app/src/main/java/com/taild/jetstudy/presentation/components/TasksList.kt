@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import com.taild.jetstudy.R
 import com.taild.jetstudy.domain.model.Task
 import com.taild.jetstudy.utils.Priority
+import com.taild.jetstudy.utils.toDateString
 
 fun LazyListScope.taskList(
     title: String,
@@ -121,7 +122,7 @@ private fun TaskCard(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "${task.dueDate}",
+                    text = task.dueDate.toDateString(),
                     style = MaterialTheme.typography.bodySmall
                 )
             }

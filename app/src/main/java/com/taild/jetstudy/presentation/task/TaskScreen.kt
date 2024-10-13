@@ -162,7 +162,9 @@ fun TaskScreen(
                 completed = uiState.isTaskCompleted,
                 checkBoxBorderColor = uiState.priority.color,
                 onBackButtonClick = onBackClick,
-                onDeleteButtonClick = { isDeleteDialogOpen = true },
+                onDeleteButtonClick = {
+                    isDeleteDialogOpen = true
+                },
                 onCheckBoxClick = {
                     onEvent(TaskEvent.OnIsCompletedChange)
                 })

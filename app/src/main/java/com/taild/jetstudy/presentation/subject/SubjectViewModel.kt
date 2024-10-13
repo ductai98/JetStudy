@@ -3,12 +3,13 @@ package com.taild.jetstudy.presentation.subject
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.taild.jetstudy.data.dto.TaskDto
 import com.taild.jetstudy.domain.model.Subject
+import com.taild.jetstudy.domain.model.Task
 import com.taild.jetstudy.domain.repository.SessionRepository
 import com.taild.jetstudy.domain.repository.SubjectRepository
 import com.taild.jetstudy.domain.repository.TaskRepository
@@ -63,8 +64,8 @@ class SubjectViewModel @Inject constructor(
         initialValue = SubjectState()
     )
 
-    private val _snackBarEventFlow = MutableSharedFlow<SnackBarEvent>()
-    val snackBarEvent = _snackBarEventFlow.asSharedFlow()
+    private val _snackBarEvent = MutableSharedFlow<SnackBarEvent>()
+    val snackBarEvent = _snackBarEvent.asSharedFlow()
 
     init {
         fetchSubject()
@@ -89,9 +90,32 @@ class SubjectViewModel @Inject constructor(
             }
             is SubjectEvent.OnUpdateSubject -> updateSubject()
             is SubjectEvent.OnDeleteSubject -> deleteSubject()
-            is SubjectEvent.OnTaskCompleteChange -> TODO()
+            is SubjectEvent.OnTaskCompleteChange -> updateTask(task = event.task)
             is SubjectEvent.OnDeleteSession -> TODO()
             is SubjectEvent.OnDeleteSessionClick -> TODO()
+        }
+    }
+    private fun updateTask(task: Task) {
+        viewModelScope.launch {
+            try {
+                taskRepository.upsertTask(
+                    task = TaskDto.fromTask(task.copy(
+                        isCompleted = task.isCompleted.not()
+                    ))
+                )
+                _snackBarEvent.emit(
+                    SnackBarEvent.ShowSnackBar(
+                        message = "Action completed"
+                    )
+                )
+            } catch (e : Exception) {
+                _snackBarEvent.emit(
+                    SnackBarEvent.ShowSnackBar(
+                        message = "Couldn't completed action. ${e.message}",
+                        duration = SnackbarDuration.Long
+                    )
+                )
+            }
         }
     }
 
@@ -104,20 +128,20 @@ class SubjectViewModel @Inject constructor(
                 _state.value.subjectId?.let {
                     subjectRepository.deleteSubject(it)
                 }
-                _snackBarEventFlow.emit(
+                _snackBarEvent.emit(
                     SnackBarEvent.ShowSnackBar(
                         message = "Delete subject successfully"
                     )
                 )
             } catch (e: IOException) {
-                _snackBarEventFlow.emit(
+                _snackBarEvent.emit(
                     SnackBarEvent.ShowSnackBar(
                         message = "Couldn't delete subject (IOException): ${e.message}",
                         duration = SnackbarDuration.Long
                     )
                 )
             } catch (e: Exception) {
-                _snackBarEventFlow.emit(
+                _snackBarEvent.emit(
                     SnackBarEvent.ShowSnackBar(
                         message = "Couldn't delete subject (UnknownError): ${e.message}",
                         duration = SnackbarDuration.Long
@@ -141,20 +165,20 @@ class SubjectViewModel @Inject constructor(
                         colors = state.value.subjectCardColors
                     )
                 )
-                _snackBarEventFlow.emit(
+                _snackBarEvent.emit(
                     SnackBarEvent.ShowSnackBar(
                         message = "Subject updated successfully"
                     )
                 )
             } catch (e: IOException) {
-                _snackBarEventFlow.emit(
+                _snackBarEvent.emit(
                     SnackBarEvent.ShowSnackBar(
                         message = "Couldn't save subject (IOException): ${e.message}",
                         duration = SnackbarDuration.Long
                     )
                 )
             } catch (e: Exception) {
-                _snackBarEventFlow.emit(
+                _snackBarEvent.emit(
                     SnackBarEvent.ShowSnackBar(
                         message = "Couldn't save subject (UnknownError): ${e.message}",
                         duration = SnackbarDuration.Long

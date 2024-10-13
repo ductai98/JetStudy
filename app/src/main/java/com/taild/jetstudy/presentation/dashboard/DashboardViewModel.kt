@@ -3,6 +3,7 @@ package com.taild.jetstudy.presentation.dashboard
 import androidx.compose.material3.SnackbarDuration
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.taild.jetstudy.data.dto.TaskDto
 import com.taild.jetstudy.domain.model.Session
 import com.taild.jetstudy.domain.model.Subject
 import com.taild.jetstudy.domain.model.Task
@@ -89,7 +90,31 @@ class DashboardViewModel @Inject constructor(
             }
             is DashboardEvent.OnSaveSubject -> saveSubject()
             is DashboardEvent.OnDeleteSession -> {}
-            is DashboardEvent.OnTaskCompletedChange -> {}
+            is DashboardEvent.OnTaskCompletedChange -> updateTask(event.task)
+        }
+    }
+
+    private fun updateTask(task: Task) {
+        viewModelScope.launch {
+            try {
+                taskRepository.upsertTask(
+                    task = TaskDto.fromTask(task.copy(
+                        isCompleted = task.isCompleted.not()
+                    ))
+                )
+                _snackBarEvent.emit(
+                    SnackBarEvent.ShowSnackBar(
+                        message = "Task completed"
+                    )
+                )
+            } catch (e : Exception) {
+                _snackBarEvent.emit(
+                    SnackBarEvent.ShowSnackBar(
+                        message = "Couldn't completed action. ${e.message}",
+                        duration = SnackbarDuration.Long
+                    )
+                )
+            }
         }
     }
 

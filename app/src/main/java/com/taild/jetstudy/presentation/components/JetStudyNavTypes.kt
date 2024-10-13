@@ -17,7 +17,7 @@ object DashboardRoute
 data class SubjectRoute(val subjectId: Int?)
 
 @Serializable
-data class TaskRoute(val task: Task)
+data class TaskRoute(val taskId: Int?, val subjectId: Int?)
 
 @Serializable
 data object SessionRoute
