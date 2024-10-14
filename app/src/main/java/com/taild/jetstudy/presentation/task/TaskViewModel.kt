@@ -138,6 +138,7 @@ class TaskViewModel @Inject constructor(
             try {
                 taskRepository.upsertTask(
                     task = TaskDto(
+                        id = state.taskId,
                         subjectId = _state.value.subjectId!!,
                         relatedToSubject = _state.value.relatedToSubject!!,
                         title = _state.value.title,
