@@ -55,10 +55,19 @@ class StudySessionTimerService : Service() {
         intent?.action.let {
             when(it) {
                 ACTION_SERVICE_START -> {
-
+                    startForegroundService()
+                    startTimer { hours, minutes, seconds ->
+                        updateNotification(hours, minutes, seconds)
+                    }
                 }
-                ACTION_SERVICE_STOP -> {}
-                ACTION_SERVICE_CANCEL -> {}
+                ACTION_SERVICE_STOP -> {
+                    stopTimer()
+                }
+                ACTION_SERVICE_CANCEL -> {
+                    stopTimer()
+                    cancelTimer()
+                    stopForegroundService()
+                }
             }
         }
         return super.onStartCommand(intent, flags, startId)
@@ -69,6 +78,12 @@ class StudySessionTimerService : Service() {
         startForeground(NOTIFICATION_ID, notificationBuilder.build())
     }
 
+    private fun stopForegroundService() {
+        notificationManager.cancel(NOTIFICATION_ID)
+        stopForeground(STOP_FOREGROUND_REMOVE)
+        stopSelf()
+    }
+
     private fun createNotificationChannel() {
         val channel = NotificationChannel(
             NOTIFICATION_CHANNEL_ID,
@@ -76,6 +91,13 @@ class StudySessionTimerService : Service() {
             NotificationManager.IMPORTANCE_LOW
         )
         notificationManager.createNotificationChannel(channel)
+    }
+
+    private fun updateNotification(hours: String, minutes: String, seconds: String) {
+        notificationManager.notify(
+            NOTIFICATION_ID,
+            notificationBuilder.setContentText("$hours:$minutes:$seconds").build()
+        )
     }
 
     private fun startTimer(
@@ -89,6 +111,20 @@ class StudySessionTimerService : Service() {
         }
     }
 
+    private fun stopTimer() {
+        if (this::timer.isInitialized) {
+            timer.cancel()
+        }
+        currentState.value = TimerState.STOPPED
+    }
+
+    private fun cancelTimer() {
+        duration = Duration.ZERO
+        updateTimeUnits()
+        currentState.value = TimerState.IDLE
+        timer.cancel()
+    }
+
     private fun updateTimeUnits() {
         duration.toComponents { hours, minutes, seconds, _ ->
             this.hours.value = hours.toInt().pad()
@@ -96,10 +132,10 @@ class StudySessionTimerService : Service() {
             this.seconds.value = seconds.pad()
         }
     }
+}
 
-    enum class TimerState {
-        IDLE,
-        STARTED,
-        STOP
-    }
+enum class TimerState {
+    IDLE,
+    STARTED,
+    STOPPED
 }
