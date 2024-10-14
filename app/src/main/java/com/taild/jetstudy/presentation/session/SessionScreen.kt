@@ -31,6 +31,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -43,6 +44,7 @@ import com.taild.jetstudy.presentation.components.studySessionsList
 import com.taild.jetstudy.presentation.theme.JetStudyTheme
 import com.taild.jetstudy.fakeSessions
 import com.taild.jetstudy.fakeSubjects
+import com.taild.jetstudy.utils.Constant.ACTION_SERVICE_START
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,8 +52,7 @@ import kotlinx.coroutines.launch
 fun SessionScreen(
     onBackClick: () -> Unit
 ) {
-    val viewModel : SessionViewModel = hiltViewModel()
-
+    val context = LocalContext.current
     var isBottomSheetOpen by rememberSaveable { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
     var subjectText by rememberSaveable { mutableStateOf("(Please select a subject)") }
@@ -116,7 +117,12 @@ fun SessionScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(12.dp),
-                    onStartButtonClick = { /*TODO*/ },
+                    onStartButtonClick = {
+                        ServiceHelper.triggerForegroundService(
+                            context = context,
+                            action = ACTION_SERVICE_START
+                        )
+                    },
                     onFinishButtonClick = { /*TODO*/ },
                     onPauseButtonClick = {}
                 )

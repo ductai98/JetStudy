@@ -123,6 +123,8 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+
+
 val fakeSubjects = listOf(
     Subject(id = 0, name = "English", goalHours = 10f, colors = Subject.subjectCardColors[0]),
     Subject(id = 0, name = "Physics", goalHours = 10f, colors = Subject.subjectCardColors[1]),
