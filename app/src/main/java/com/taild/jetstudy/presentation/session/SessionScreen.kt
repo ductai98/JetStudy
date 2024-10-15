@@ -44,7 +44,9 @@ import com.taild.jetstudy.presentation.components.studySessionsList
 import com.taild.jetstudy.presentation.theme.JetStudyTheme
 import com.taild.jetstudy.fakeSessions
 import com.taild.jetstudy.fakeSubjects
+import com.taild.jetstudy.utils.Constant.ACTION_SERVICE_CANCEL
 import com.taild.jetstudy.utils.Constant.ACTION_SERVICE_START
+import com.taild.jetstudy.utils.Constant.ACTION_SERVICE_STOP
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -86,7 +88,7 @@ fun SessionScreen(
 
     Scaffold(
         topBar = {
-            SessionTopBar(onBackButtonClick = {})
+            SessionTopBar(onBackButtonClick = onBackClick)
         }
     ) { innerPadding ->
         LazyColumn(
@@ -123,8 +125,18 @@ fun SessionScreen(
                             action = ACTION_SERVICE_START
                         )
                     },
-                    onFinishButtonClick = { /*TODO*/ },
-                    onPauseButtonClick = {}
+                    onFinishButtonClick = {
+                        ServiceHelper.triggerForegroundService(
+                            context = context,
+                            action = ACTION_SERVICE_STOP
+                        )
+                    },
+                    onCancelButtonClick = {
+                        ServiceHelper.triggerForegroundService(
+                            context = context,
+                            action = ACTION_SERVICE_CANCEL
+                        )
+                    }
                 )
             }
             studySessionsList(
@@ -145,7 +157,7 @@ fun SessionTopBar(
 ) {
     TopAppBar(
         navigationIcon = {
-            IconButton(onClick = { /*TODO*/ }) {
+            IconButton(onClick = onBackButtonClick) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = null
@@ -192,7 +204,7 @@ private fun ButtonSession(
     modifier: Modifier = Modifier,
     onStartButtonClick: () -> Unit,
     onFinishButtonClick: () -> Unit,
-    onPauseButtonClick: () -> Unit
+    onCancelButtonClick: () -> Unit
 ) {
     Row(
         modifier = modifier,
@@ -207,8 +219,8 @@ private fun ButtonSession(
             onClick = onFinishButtonClick
         )
         JetStudyButton(
-            text = "Pause",
-            onClick = onPauseButtonClick
+            text = "Cancel",
+            onClick = onCancelButtonClick
         )
     }
 }

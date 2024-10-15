@@ -4,6 +4,7 @@ import android.app.NotificationManager
 import android.content.Context
 import androidx.core.app.NotificationCompat
 import com.taild.jetstudy.R
+import com.taild.jetstudy.presentation.session.ServiceHelper.clickPendingIntent
 import com.taild.jetstudy.utils.Constant.NOTIFICATION_CHANNEL_ID
 import dagger.Module
 import dagger.Provides
@@ -35,5 +36,6 @@ object NotificationModule {
             .setContentText("00:00:00")
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setOngoing(true)
+            .setContentIntent(clickPendingIntent(context))
     }
 }

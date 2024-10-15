@@ -88,7 +88,7 @@ class StudySessionTimerService : Service() {
         val channel = NotificationChannel(
             NOTIFICATION_CHANNEL_ID,
             NOTIFICATION_CHANNEL_NAME,
-            NotificationManager.IMPORTANCE_LOW
+            NotificationManager.IMPORTANCE_HIGH
         )
         notificationManager.createNotificationChannel(channel)
     }
@@ -122,7 +122,9 @@ class StudySessionTimerService : Service() {
         duration = Duration.ZERO
         updateTimeUnits()
         currentState.value = TimerState.IDLE
-        timer.cancel()
+        if (this::timer.isInitialized) {
+            timer.cancel()
+        }
     }
 
     private fun updateTimeUnits() {

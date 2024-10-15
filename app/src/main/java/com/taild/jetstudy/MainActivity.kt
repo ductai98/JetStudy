@@ -1,5 +1,6 @@
 package com.taild.jetstudy
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -9,11 +10,13 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.app.ActivityCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navDeepLink
 import androidx.navigation.toRoute
 import com.taild.jetstudy.domain.model.Session
 import com.taild.jetstudy.domain.model.Subject
@@ -110,7 +113,13 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
-                    composable<SessionRoute> {
+                    composable<SessionRoute>(
+                        deepLinks = listOf(
+                            navDeepLink<SessionRoute>(
+                                basePath = "jet_study://dashboard/session"
+                            )
+                        )
+                    ) {
                         SessionScreen(
                             onBackClick = {
                                 navController.navigateUp()
@@ -119,6 +128,17 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
+        }
+        requestPermission()
+    }
+
+    private fun requestPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+                0
+            )
         }
     }
 }
