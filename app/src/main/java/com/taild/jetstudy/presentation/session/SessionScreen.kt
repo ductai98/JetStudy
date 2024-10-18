@@ -1,5 +1,13 @@
 package com.taild.jetstudy.presentation.session
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,7 +43,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.taild.jetstudy.presentation.components.DeleteDialog
 import com.taild.jetstudy.presentation.components.JetStudyButton
 import com.taild.jetstudy.presentation.components.RelatedToSubjectSession
@@ -44,6 +51,7 @@ import com.taild.jetstudy.presentation.components.studySessionsList
 import com.taild.jetstudy.presentation.theme.JetStudyTheme
 import com.taild.jetstudy.fakeSessions
 import com.taild.jetstudy.fakeSubjects
+import com.taild.jetstudy.presentation.theme.Red
 import com.taild.jetstudy.utils.Constant.ACTION_SERVICE_CANCEL
 import com.taild.jetstudy.utils.Constant.ACTION_SERVICE_START
 import com.taild.jetstudy.utils.Constant.ACTION_SERVICE_STOP
@@ -52,13 +60,18 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SessionScreen(
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    timerService: StudySessionTimerService
 ) {
     val context = LocalContext.current
     var isBottomSheetOpen by rememberSaveable { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
     var subjectText by rememberSaveable { mutableStateOf("(Please select a subject)") }
     var isDeleteSessionDialogOpen by rememberSaveable { mutableStateOf(false) }
+    val hours by timerService.hours
+    val minutes by timerService.minutes
+    val seconds by timerService.seconds
+    val currentTimerState by timerService.currentTimerState
 
     val scope = rememberCoroutineScope()
 
@@ -100,7 +113,10 @@ fun SessionScreen(
                 TimerSession(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .aspectRatio(1f)
+                        .aspectRatio(1f),
+                    hours = hours,
+                    minutes = minutes,
+                    seconds = seconds
                 )
             }
             item {
@@ -122,7 +138,11 @@ fun SessionScreen(
                     onStartButtonClick = {
                         ServiceHelper.triggerForegroundService(
                             context = context,
-                            action = ACTION_SERVICE_START
+                            action = if (currentTimerState == TimerState.STARTED) {
+                                ACTION_SERVICE_STOP
+                            } else {
+                                ACTION_SERVICE_START
+                            }
                         )
                     },
                     onFinishButtonClick = {
@@ -136,7 +156,9 @@ fun SessionScreen(
                             context = context,
                             action = ACTION_SERVICE_CANCEL
                         )
-                    }
+                    },
+                    timerState = currentTimerState,
+                    seconds = seconds
                 )
             }
             studySessionsList(
@@ -175,7 +197,10 @@ fun SessionTopBar(
 
 @Composable
 private fun TimerSession(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    hours: String = "00",
+    minutes: String = "00",
+    seconds: String = "0"
 ) {
     Box(
         modifier = modifier,
@@ -191,10 +216,38 @@ private fun TimerSession(
                 ),
             contentAlignment = Alignment.Center
         ){
-            Text(
-                text = "00:40:12",
-                style = MaterialTheme.typography.titleLarge.copy(fontSize = 45.sp)
-            )
+            Row {
+                AnimatedContent(
+                    targetState = hours,
+                    label = hours,
+                    transitionSpec = { timerTextAnimation() }
+                ) {hours ->
+                    Text(
+                        text = "$hours:",
+                        style = MaterialTheme.typography.titleLarge.copy(fontSize = 45.sp)
+                    )
+                }
+                AnimatedContent(
+                    targetState = minutes,
+                    label = minutes,
+                    transitionSpec = { timerTextAnimation() }
+                ) {minutes ->
+                    Text(
+                        text = "$minutes:",
+                        style = MaterialTheme.typography.titleLarge.copy(fontSize = 45.sp)
+                    )
+                }
+                AnimatedContent(
+                    targetState = seconds,
+                    label = seconds,
+                    transitionSpec = { timerTextAnimation() }
+                ) {seconds ->
+                    Text(
+                        text = seconds,
+                        style = MaterialTheme.typography.titleLarge.copy(fontSize = 45.sp)
+                    )
+                }
+            }
         }
     }
 }
@@ -204,25 +257,45 @@ private fun ButtonSession(
     modifier: Modifier = Modifier,
     onStartButtonClick: () -> Unit,
     onFinishButtonClick: () -> Unit,
-    onCancelButtonClick: () -> Unit
+    onCancelButtonClick: () -> Unit,
+    timerState: TimerState,
+    seconds: String
 ) {
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         JetStudyButton(
-            text = "Start",
-            onClick = onStartButtonClick
+            text = when(timerState) {
+                TimerState.STARTED -> "Stop"
+                TimerState.STOPPED -> "Resume"
+                else -> "Start"
+            },
+            onClick = onStartButtonClick,
+            colors = if (timerState == TimerState.STARTED) {
+                Red
+            } else {
+                MaterialTheme.colorScheme.primary
+            }
         )
         JetStudyButton(
             text = "Finish",
-            onClick = onFinishButtonClick
+            onClick = onFinishButtonClick,
+            enabled = seconds != "00" && timerState != TimerState.STARTED
         )
         JetStudyButton(
             text = "Cancel",
-            onClick = onCancelButtonClick
+            onClick = onCancelButtonClick,
+            enabled = seconds != "00" && timerState != TimerState.STARTED
         )
     }
+}
+
+private fun timerTextAnimation(duration: Int = 600): ContentTransform {
+    return slideInVertically(animationSpec = tween(duration)) { fullHeight -> fullHeight} +
+            fadeIn(animationSpec = tween(duration)) togetherWith
+            slideOutVertically(animationSpec = tween(duration)) { fullHeight -> -fullHeight} +
+            fadeOut(animationSpec = tween(duration))
 }
 
 @Preview
@@ -230,7 +303,8 @@ private fun ButtonSession(
 fun SessionScreenPreview() {
     JetStudyTheme {
         SessionScreen(
-            onBackClick = {}
+            onBackClick = {},
+            timerService = StudySessionTimerService()
         )
     }
 }

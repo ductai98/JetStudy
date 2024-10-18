@@ -4,6 +4,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Intent
+import android.os.Binder
 import android.os.IBinder
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.NotificationCompat
@@ -30,6 +31,8 @@ class StudySessionTimerService : Service() {
     @Inject
     lateinit var notificationBuilder: NotificationCompat.Builder
 
+    private val binder = StudySessionTimerBinder()
+
     private lateinit var timer: Timer
 
     var duration: Duration = Duration.ZERO
@@ -44,12 +47,10 @@ class StudySessionTimerService : Service() {
     var hours = mutableStateOf("00")
         private set
 
-    var currentState = mutableStateOf(TimerState.IDLE)
+    var currentTimerState = mutableStateOf(TimerState.IDLE)
         private set
 
-    override fun onBind(p0: Intent?): IBinder? {
-        return null
-    }
+    override fun onBind(p0: Intent?): IBinder = binder
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         intent?.action.let {
@@ -103,7 +104,7 @@ class StudySessionTimerService : Service() {
     private fun startTimer(
         onTick: (h: String, m: String, s: String) -> Unit
     ) {
-        currentState.value = TimerState.STARTED
+        currentTimerState.value = TimerState.STARTED
         timer = fixedRateTimer(initialDelay = 1000L, period = 1000L) {
             duration = duration.plus(1.seconds)
             updateTimeUnits()
@@ -115,13 +116,13 @@ class StudySessionTimerService : Service() {
         if (this::timer.isInitialized) {
             timer.cancel()
         }
-        currentState.value = TimerState.STOPPED
+        currentTimerState.value = TimerState.STOPPED
     }
 
     private fun cancelTimer() {
         duration = Duration.ZERO
         updateTimeUnits()
-        currentState.value = TimerState.IDLE
+        currentTimerState.value = TimerState.IDLE
         if (this::timer.isInitialized) {
             timer.cancel()
         }
@@ -132,6 +133,12 @@ class StudySessionTimerService : Service() {
             this.hours.value = hours.toInt().pad()
             this.minutes.value = minutes.pad()
             this.seconds.value = seconds.pad()
+        }
+    }
+
+    inner class StudySessionTimerBinder: Binder() {
+        fun getService(): StudySessionTimerService {
+            return this@StudySessionTimerService
         }
     }
 }
