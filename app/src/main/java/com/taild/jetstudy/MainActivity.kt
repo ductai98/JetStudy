@@ -164,13 +164,15 @@ class MainActivity : ComponentActivity() {
                             val viewModel: SessionViewModel = hiltViewModel()
                             val state by viewModel.state.collectAsStateWithLifecycle()
                             val onEvent = viewModel::onEvent
+                            val snackBarEvent = viewModel.snackBarEvent
                             SessionScreen(
                                 onBackClick = {
                                     navController.navigateUp()
                                 },
                                 timerService = timerService,
                                 state = state,
-                                onEvent = onEvent
+                                onEvent = onEvent,
+                                snackBarEvent = snackBarEvent
                             )
                         }
                     }

@@ -93,6 +93,10 @@ fun SubjectScreen(
         }
     }
 
+    LaunchedEffect(key1 = uiState.studiedHours, key2 = uiState.goalStudyHours) {
+        onEvent(SubjectEvent.UpdateProgress)
+    }
+
     AddSubjectDialog(
         isOpen = isAddSubjectDialogOpen,
         onDismissRequest = {
@@ -288,7 +292,7 @@ private fun SubjectOverviewSection(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight(),
-            headingText = "Study Hours",
+            headingText = "Studied Hours",
             count = studiedHours)
         Spacer(modifier = Modifier.width(10.dp))
         Box(

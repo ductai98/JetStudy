@@ -2,7 +2,6 @@ package com.taild.jetstudy.presentation.subject
 
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -46,17 +45,11 @@ class SubjectViewModel @Inject constructor(
         sessionRepository.getRecentTenSessionsForSubject(subjectId),
         sessionRepository.getTotalSessionDurationForSubject(subjectId)
     ) { state, upcomingTasks, completedTasks, recentSessions, totalSessionDuration ->
-        val progress by derivedStateOf {
-            val studiedHours = state.studiedHours
-            val goalHours = state.goalStudyHours.toFloatOrNull() ?: 100f
-            (studiedHours / goalHours).coerceIn(0f, 1f)
-        }
         state.copy(
             upcomingTasks = upcomingTasks,
             completedTasks = completedTasks,
             recentSessions = recentSessions,
             studiedHours = totalSessionDuration.toHours(),
-            progress = progress
         )
     }.stateIn(
         scope = viewModelScope,
@@ -91,8 +84,23 @@ class SubjectViewModel @Inject constructor(
             is SubjectEvent.OnUpdateSubject -> updateSubject()
             is SubjectEvent.OnDeleteSubject -> deleteSubject()
             is SubjectEvent.OnTaskCompleteChange -> updateTask(task = event.task)
-            is SubjectEvent.OnDeleteSession -> TODO()
-            is SubjectEvent.OnDeleteSessionClick -> TODO()
+            is SubjectEvent.OnDeleteSession -> deleteSession()
+            is SubjectEvent.OnDeleteSessionClick -> {
+                _state.update {
+                    it.copy(
+                        session = event.session
+                    )
+                }
+            }
+
+            SubjectEvent.UpdateProgress -> {
+                val goalStudyHours = _state.value.goalStudyHours.toFloatOrNull() ?: 1f
+                _state.update {
+                    it.copy(
+                        progress = (state.value.studiedHours / goalStudyHours).coerceIn(0f, 1f)
+                    )
+                }
+            }
         }
     }
     private fun updateTask(task: Task) {
@@ -199,6 +207,28 @@ class SubjectViewModel @Inject constructor(
                         subjectCardColors = subject.colors,
                     )
                 }
+            }
+        }
+    }
+
+    private fun deleteSession() {
+        viewModelScope.launch {
+            try {
+                _state.value.session?.let {
+                    sessionRepository.deleteSession(it)
+                    _snackBarEvent.emit(
+                        SnackBarEvent.ShowSnackBar(
+                            message = "Delete session successfully"
+                        )
+                    )
+                }
+            } catch (e: Exception) {
+                _snackBarEvent.emit(
+                    SnackBarEvent.ShowSnackBar(
+                        message = "Couldn't delete session",
+                        duration = SnackbarDuration.Long
+                    )
+                )
             }
         }
     }

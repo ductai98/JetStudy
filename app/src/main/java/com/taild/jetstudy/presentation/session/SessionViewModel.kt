@@ -1,18 +1,18 @@
 package com.taild.jetstudy.presentation.session
 
+import androidx.compose.material3.SnackbarDuration
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.taild.jetstudy.data.dto.SessionDto
-import com.taild.jetstudy.domain.model.Session
 import com.taild.jetstudy.domain.repository.SessionRepository
 import com.taild.jetstudy.domain.repository.SubjectRepository
+import com.taild.jetstudy.utils.Constant.MIN_DURATION
 import com.taild.jetstudy.utils.SnackBarEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -46,9 +46,25 @@ class SessionViewModel @Inject constructor(
 
     fun onEvent(event: SessionEvent) {
         when(event) {
-            SessionEvent.CheckSubjectId -> {}
-            SessionEvent.DeleteSession -> {}
-            is SessionEvent.OnDeleteSessionButtonClick -> {}
+            SessionEvent.NotifyToUpdateSubject -> {
+                viewModelScope.launch {
+                    if (state.value.subjectId == null || state.value.relatedToSubject.isNullOrBlank()) {
+                        _snackBarEvent.emit(
+                            SnackBarEvent.ShowSnackBar(
+                                message = "Please select a subject relate to the session"
+                            )
+                        )
+                    }
+                }
+            }
+            SessionEvent.DeleteSession -> deleteSession()
+            is SessionEvent.OnDeleteSessionButtonClick -> {
+                _state.update {
+                    it.copy(
+                        session = event.session
+                    )
+                }
+            }
             is SessionEvent.OnRelatedSubjectChange -> {
                 _state.update {
                     it.copy(
@@ -58,12 +74,49 @@ class SessionViewModel @Inject constructor(
                 }
             }
             is SessionEvent.SaveSession -> insertSession(event.duration)
-            is SessionEvent.UpdateSubjectIdAndRelatedSubject -> {}
+            is SessionEvent.UpdateSubjectIdAndRelatedSubject -> {
+                _state.update {
+                    it.copy(
+                        subjectId = event.subjectId,
+                        relatedToSubject = event.relatedToSubject
+                    )
+                }
+            }
+        }
+    }
+
+    private fun deleteSession() {
+        viewModelScope.launch {
+            try {
+                _state.value.session?.let {
+                    sessionRepository.deleteSession(it)
+                    _snackBarEvent.emit(
+                        SnackBarEvent.ShowSnackBar(
+                            message = "Delete session successfully"
+                        )
+                    )
+                }
+            } catch (e: Exception) {
+                _snackBarEvent.emit(
+                    SnackBarEvent.ShowSnackBar(
+                        message = "Couldn't delete session",
+                        duration = SnackbarDuration.Long
+                    )
+                )
+            }
         }
     }
 
     private fun insertSession(duration: Long) {
         viewModelScope.launch {
+            if (duration < MIN_DURATION) {
+                _snackBarEvent.emit(
+                    SnackBarEvent.ShowSnackBar(
+                        message = "Single session can not be less than $MIN_DURATION seconds"
+                    )
+                )
+                return@launch
+            }
             try {
                 sessionRepository.insertSession(
                     session = SessionDto(

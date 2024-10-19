@@ -57,6 +57,7 @@ import com.taild.jetstudy.presentation.theme.Red
 import com.taild.jetstudy.utils.Constant.ACTION_SERVICE_CANCEL
 import com.taild.jetstudy.utils.Constant.ACTION_SERVICE_START
 import com.taild.jetstudy.utils.Constant.ACTION_SERVICE_STOP
+import com.taild.jetstudy.utils.Constant.MIN_DURATION
 import com.taild.jetstudy.utils.SnackBarEvent
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -97,6 +98,16 @@ fun SessionScreen(
                 }
             }
         }
+    }
+
+    LaunchedEffect(key1 = state.subjects) {
+        val subjectId = timerService.subjectId
+        onEvent(
+            SessionEvent.UpdateSubjectIdAndRelatedSubject(
+                subjectId = subjectId,
+                relatedToSubject = state.subjects.find { it.id == subjectId }?.name
+            )
+        )
     }
 
     DeleteDialog(
@@ -154,7 +165,8 @@ fun SessionScreen(
                         .fillMaxWidth()
                         .padding(horizontal = 12.dp),
                     onSubjectClick = { isBottomSheetOpen = true },
-                    subjectText = state.relatedToSubject ?: "Please select a subject"
+                    subjectText = state.relatedToSubject ?: "Please select a subject",
+                    seconds = seconds
                 )
             }
             item {
@@ -164,21 +176,28 @@ fun SessionScreen(
                         .fillMaxWidth()
                         .padding(12.dp),
                     onStartButtonClick = {
-                        ServiceHelper.triggerForegroundService(
-                            context = context,
-                            action = if (currentTimerState == TimerState.STARTED) {
-                                ACTION_SERVICE_STOP
-                            } else {
-                                ACTION_SERVICE_START
-                            }
-                        )
+                        if (state.subjectId != null && state.relatedToSubject != null) {
+                            ServiceHelper.triggerForegroundService(
+                                context = context,
+                                action = if (currentTimerState == TimerState.STARTED) {
+                                    ACTION_SERVICE_STOP
+                                } else {
+                                    ACTION_SERVICE_START
+                                }
+                            )
+                            timerService.subjectId = state.subjectId
+                        } else {
+                            onEvent(SessionEvent.NotifyToUpdateSubject)
+                        }
                     },
                     onFinishButtonClick = {
                         val duration = timerService.duration.toLong(DurationUnit.SECONDS)
-                        ServiceHelper.triggerForegroundService(
-                            context = context,
-                            action = ACTION_SERVICE_CANCEL
-                        )
+                        if (duration >= MIN_DURATION) {
+                            ServiceHelper.triggerForegroundService(
+                                context = context,
+                                action = ACTION_SERVICE_CANCEL
+                            )
+                        }
                         onEvent(SessionEvent.SaveSession(duration))
                     },
                     onCancelButtonClick = {

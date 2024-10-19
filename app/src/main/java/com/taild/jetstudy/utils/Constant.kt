@@ -10,4 +10,6 @@ object Constant {
     const val NOTIFICATION_ID = 10
 
     const val CLICK_REQUEST_CODE = 100
+    const val MIN_DURATION = 36
+
 }

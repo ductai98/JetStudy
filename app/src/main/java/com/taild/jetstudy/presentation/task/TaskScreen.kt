@@ -253,7 +253,7 @@ fun TaskScreen(
             Spacer(modifier = Modifier.height(30.dp))
             RelatedToSubjectSession(
                 onSubjectClick = { isBottomSheetOpen = true },
-                subjectText = uiState.relatedToSubject ?: "Please select a subject"
+                subjectText = uiState.relatedToSubject ?: "Please select a subject",
             )
 
             Button(

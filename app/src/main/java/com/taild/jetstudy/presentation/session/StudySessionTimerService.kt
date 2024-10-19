@@ -6,7 +6,9 @@ import android.app.Service
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.core.app.NotificationCompat
 import com.taild.jetstudy.utils.Constant.ACTION_SERVICE_CANCEL
 import com.taild.jetstudy.utils.Constant.ACTION_SERVICE_START
@@ -49,6 +51,8 @@ class StudySessionTimerService : Service() {
 
     var currentTimerState = mutableStateOf(TimerState.IDLE)
         private set
+
+    var subjectId by mutableStateOf<Int?>(null)
 
     override fun onBind(p0: Intent?): IBinder = binder
 

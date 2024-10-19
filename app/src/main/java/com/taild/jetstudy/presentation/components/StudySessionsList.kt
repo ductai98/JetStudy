@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import com.taild.jetstudy.R
 import com.taild.jetstudy.domain.model.Session
 import com.taild.jetstudy.utils.toDateString
+import com.taild.jetstudy.utils.toHours
 
 fun LazyListScope.studySessionsList(
     title: String,
@@ -111,7 +112,7 @@ private fun SessionCard(
             }
             Spacer(modifier = Modifier.weight(1f))
             Text(
-                text = "${session.duration}",
+                text = "${session.duration.toHours()} hrs",
                 style = MaterialTheme.typography.bodySmall
             )
             IconButton(onClick = onDeleteClick) {
