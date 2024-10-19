@@ -28,6 +28,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.taild.jetstudy.R
 import com.taild.jetstudy.domain.model.Session
+import com.taild.jetstudy.utils.toDateString
 
 fun LazyListScope.studySessionsList(
     title: String,
@@ -104,7 +105,7 @@ private fun SessionCard(
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(
-                    text = "${session.date}",
+                    text = session.date.toDateString(),
                     style = MaterialTheme.typography.bodySmall
                 )
             }

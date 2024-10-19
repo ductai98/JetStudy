@@ -28,12 +28,16 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -53,6 +57,9 @@ import com.taild.jetstudy.presentation.theme.Red
 import com.taild.jetstudy.utils.Constant.ACTION_SERVICE_CANCEL
 import com.taild.jetstudy.utils.Constant.ACTION_SERVICE_START
 import com.taild.jetstudy.utils.Constant.ACTION_SERVICE_STOP
+import com.taild.jetstudy.utils.SnackBarEvent
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlin.time.DurationUnit
 
@@ -62,9 +69,13 @@ fun SessionScreen(
     state: SessionState,
     onEvent: (SessionEvent) -> Unit,
     onBackClick: () -> Unit,
-    timerService: StudySessionTimerService
+    timerService: StudySessionTimerService,
+    snackBarEvent: SharedFlow<SnackBarEvent>? = null
 ) {
+
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
     var isBottomSheetOpen by rememberSaveable { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
     var isDeleteSessionDialogOpen by rememberSaveable { mutableStateOf(false) }
@@ -73,7 +84,20 @@ fun SessionScreen(
     val seconds by timerService.seconds
     val currentTimerState by timerService.currentTimerState
 
-    val scope = rememberCoroutineScope()
+    val snackBarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(Unit) {
+        snackBarEvent?.collectLatest { event ->
+            when (event) {
+                SnackBarEvent.NavigateUp -> onBackClick()
+                is SnackBarEvent.ShowSnackBar -> {
+                    snackBarHostState.showSnackbar(
+                        message = event.message
+                    )
+                }
+            }
+        }
+    }
 
     DeleteDialog(
         isOpen = isDeleteSessionDialogOpen,
@@ -103,6 +127,7 @@ fun SessionScreen(
     )
 
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
         topBar = {
             SessionTopBar(onBackButtonClick = onBackClick)
         }
