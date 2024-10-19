@@ -13,9 +13,8 @@ import javax.inject.Inject
 class SessionRepositoryImpl @Inject constructor(
     private val sessionDao: SessionDao
 ) : SessionRepository {
-    override suspend fun insertSession(session: Session) {
-        val sessionDto = SessionDto.fromSession(session)
-        sessionDao.insertSession(sessionDto)
+    override suspend fun insertSession(session: SessionDto) {
+        sessionDao.insertSession(session)
     }
 
     override suspend fun deleteSession(session: Session) {

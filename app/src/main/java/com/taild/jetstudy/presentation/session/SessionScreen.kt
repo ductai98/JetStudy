@@ -49,24 +49,24 @@ import com.taild.jetstudy.presentation.components.RelatedToSubjectSession
 import com.taild.jetstudy.presentation.components.SubjectListBottomSheet
 import com.taild.jetstudy.presentation.components.studySessionsList
 import com.taild.jetstudy.presentation.theme.JetStudyTheme
-import com.taild.jetstudy.fakeSessions
-import com.taild.jetstudy.fakeSubjects
 import com.taild.jetstudy.presentation.theme.Red
 import com.taild.jetstudy.utils.Constant.ACTION_SERVICE_CANCEL
 import com.taild.jetstudy.utils.Constant.ACTION_SERVICE_START
 import com.taild.jetstudy.utils.Constant.ACTION_SERVICE_STOP
 import kotlinx.coroutines.launch
+import kotlin.time.DurationUnit
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SessionScreen(
+    state: SessionState,
+    onEvent: (SessionEvent) -> Unit,
     onBackClick: () -> Unit,
     timerService: StudySessionTimerService
 ) {
     val context = LocalContext.current
     var isBottomSheetOpen by rememberSaveable { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
-    var subjectText by rememberSaveable { mutableStateOf("(Please select a subject)") }
     var isDeleteSessionDialogOpen by rememberSaveable { mutableStateOf(false) }
     val hours by timerService.hours
     val minutes by timerService.minutes
@@ -81,19 +81,22 @@ fun SessionScreen(
         body = "Are you sure, you want to delete this session? Your studied hours will be reduced " +
                 "by this session's time. This action cannot be undone.",
         onDismissRequest = { isDeleteSessionDialogOpen = false },
-        onConfirmButtonClick = { isDeleteSessionDialogOpen = false }
+        onConfirmButtonClick = {
+            onEvent(SessionEvent.DeleteSession)
+            isDeleteSessionDialogOpen = false
+        }
     )
 
     SubjectListBottomSheet(
         isOpen = isBottomSheetOpen,
         sheetState = sheetState,
-        subjects = fakeSubjects,
-        onSubjectClick = {subject ->
+        subjects = state.subjects,
+        onSubjectClick = { subject ->
             scope.launch { sheetState.hide() }.invokeOnCompletion {
                 if (!sheetState.isVisible) {
                     isBottomSheetOpen = false
                 }
-                subjectText = subject.name
+                onEvent(SessionEvent.OnRelatedSubjectChange(subject))
             }
         },
         onDismissRequest = { isBottomSheetOpen = false }
@@ -126,7 +129,7 @@ fun SessionScreen(
                         .fillMaxWidth()
                         .padding(horizontal = 12.dp),
                     onSubjectClick = { isBottomSheetOpen = true },
-                    subjectText = subjectText
+                    subjectText = state.relatedToSubject ?: "Please select a subject"
                 )
             }
             item {
@@ -146,10 +149,12 @@ fun SessionScreen(
                         )
                     },
                     onFinishButtonClick = {
+                        val duration = timerService.duration.toLong(DurationUnit.SECONDS)
                         ServiceHelper.triggerForegroundService(
                             context = context,
-                            action = ACTION_SERVICE_STOP
+                            action = ACTION_SERVICE_CANCEL
                         )
+                        onEvent(SessionEvent.SaveSession(duration))
                     },
                     onCancelButtonClick = {
                         ServiceHelper.triggerForegroundService(
@@ -165,8 +170,11 @@ fun SessionScreen(
                 title = "STUDY SESSION HISTORY",
                 emptyText = "You don't have any recent study sessions.\n"+
                         "Start a study session to begin recording your progress.",
-                sessions = fakeSessions,
-                onDeleteClick = { isDeleteSessionDialogOpen = true }
+                sessions = state.sessions,
+                onDeleteClick = {
+                    onEvent(SessionEvent.OnDeleteSessionButtonClick(it))
+                    isDeleteSessionDialogOpen = true
+                }
             )
         }
     }
@@ -304,7 +312,9 @@ fun SessionScreenPreview() {
     JetStudyTheme {
         SessionScreen(
             onBackClick = {},
-            timerService = StudySessionTimerService()
+            timerService = StudySessionTimerService(),
+            state = SessionState(),
+            onEvent = {}
         )
     }
 }

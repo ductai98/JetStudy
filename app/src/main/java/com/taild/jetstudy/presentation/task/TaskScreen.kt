@@ -46,8 +46,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.taild.jetstudy.domain.model.Task
 import com.taild.jetstudy.presentation.components.DeleteDialog
 import com.taild.jetstudy.presentation.components.FutureOrPresentSelectableDates
 import com.taild.jetstudy.presentation.components.RelatedToSubjectSession
@@ -55,8 +53,6 @@ import com.taild.jetstudy.presentation.components.SubjectListBottomSheet
 import com.taild.jetstudy.presentation.components.TaskCheckBox
 import com.taild.jetstudy.presentation.components.TaskDatePicker
 import com.taild.jetstudy.presentation.theme.JetStudyTheme
-import com.taild.jetstudy.presentation.theme.Red
-import com.taild.jetstudy.fakeSubjects
 import com.taild.jetstudy.utils.Priority
 import com.taild.jetstudy.utils.SnackBarEvent
 import com.taild.jetstudy.utils.toDateString
@@ -257,7 +253,7 @@ fun TaskScreen(
             Spacer(modifier = Modifier.height(30.dp))
             RelatedToSubjectSession(
                 onSubjectClick = { isBottomSheetOpen = true },
-                subjectText = uiState.relatedToSubject
+                subjectText = uiState.relatedToSubject ?: "Please select a subject"
             )
 
             Button(

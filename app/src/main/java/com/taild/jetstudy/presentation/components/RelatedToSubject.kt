@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 fun RelatedToSubjectSession(
     modifier: Modifier = Modifier,
     onSubjectClick: () -> Unit,
-    subjectText: String?
+    subjectText: String
 ) {
     Column(
         modifier = modifier

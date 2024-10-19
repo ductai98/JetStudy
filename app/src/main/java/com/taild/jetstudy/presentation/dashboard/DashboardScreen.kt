@@ -23,7 +23,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -45,8 +44,6 @@ import com.taild.jetstudy.R
 import com.taild.jetstudy.domain.model.Session
 import com.taild.jetstudy.domain.model.Subject
 import com.taild.jetstudy.domain.model.Task
-import com.taild.jetstudy.fakeSessions
-import com.taild.jetstudy.fakeTasks
 import com.taild.jetstudy.presentation.components.AddSubjectDialog
 import com.taild.jetstudy.presentation.components.CountCard
 import com.taild.jetstudy.presentation.components.DeleteDialog
@@ -55,7 +52,6 @@ import com.taild.jetstudy.presentation.components.studySessionsList
 import com.taild.jetstudy.presentation.components.taskList
 import com.taild.jetstudy.presentation.theme.JetStudyTheme
 import com.taild.jetstudy.utils.SnackBarEvent
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
 
@@ -305,8 +301,8 @@ fun DashboardScreenPreview() {
         DashboardScreen(
             onEvent = {},
             snackBarEvent = null,
-            tasks = fakeTasks,
-            sessions = fakeSessions,
+            tasks = emptyList(),
+            sessions = emptyList(),
             uiState = DashboardState(),
             onSubjectClick = {},
             onStartSessionClick = {},

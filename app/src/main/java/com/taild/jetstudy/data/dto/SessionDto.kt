@@ -8,8 +8,8 @@ import com.taild.jetstudy.domain.model.Session
 data class SessionDto(
     @PrimaryKey(autoGenerate = true)
     val id: Int? = null,
-    val subjectId: Int,
-    val relatedToSubject: String,
+    val subjectId: Int?,
+    val relatedToSubject: String?,
     val date: Long,
     val duration: Long,
 ) {

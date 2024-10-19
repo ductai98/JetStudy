@@ -36,6 +36,8 @@ import com.taild.jetstudy.presentation.dashboard.DashboardScreen
 import com.taild.jetstudy.presentation.dashboard.DashboardState
 import com.taild.jetstudy.presentation.dashboard.DashboardViewModel
 import com.taild.jetstudy.presentation.session.SessionScreen
+import com.taild.jetstudy.presentation.session.SessionState
+import com.taild.jetstudy.presentation.session.SessionViewModel
 import com.taild.jetstudy.presentation.session.StudySessionTimerService
 import com.taild.jetstudy.presentation.subject.SubjectScreen
 import com.taild.jetstudy.presentation.subject.SubjectViewModel
@@ -159,11 +161,16 @@ class MainActivity : ComponentActivity() {
                                 )
                             )
                         ) {
+                            val viewModel: SessionViewModel = hiltViewModel()
+                            val state by viewModel.state.collectAsStateWithLifecycle()
+                            val onEvent = viewModel::onEvent
                             SessionScreen(
                                 onBackClick = {
                                     navController.navigateUp()
                                 },
-                                timerService = timerService
+                                timerService = timerService,
+                                state = state,
+                                onEvent = onEvent
                             )
                         }
                     }
@@ -198,102 +205,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-
-
-val fakeSubjects = listOf(
-    Subject(id = 0, name = "English", goalHours = 10f, colors = Subject.subjectCardColors[0]),
-    Subject(id = 0, name = "Physics", goalHours = 10f, colors = Subject.subjectCardColors[1]),
-    Subject(id = 0, name = "Maths", goalHours = 10f, colors = Subject.subjectCardColors[2]),
-    Subject(id = 0, name = "Geology", goalHours = 10f, colors = Subject.subjectCardColors[3]),
-    Subject(id = 0, name = "Fine Arts", goalHours = 10f, colors = Subject.subjectCardColors[0]),
-    Subject(id = 0, name = "Jetpack Compose", goalHours = 10f, colors = Subject.subjectCardColors[0]),
-    Subject(id = 0, name = "SwiftUI", goalHours = 10f, colors = Subject.subjectCardColors[0]),
-)
-
-val fakeTasks = listOf(
-    Task(
-        id = 1,
-        subjectId = 0,
-        title = "Prepare notes",
-        description = "",
-        dueDate = 0L,
-        priority = 0,
-        relatedToSubject = "",
-        isCompleted = false
-    ),
-    Task(
-        id = 1,
-        subjectId = 0,
-        title = "Do homework",
-        description = "",
-        dueDate = 0L,
-        priority = 1,
-        relatedToSubject = "",
-        isCompleted = true
-    ),
-    Task(
-        id = 1,
-        subjectId = 0,
-        title = "Go Coaching",
-        description = "",
-        dueDate = 0L,
-        priority = 2,
-        relatedToSubject = "",
-        isCompleted = false
-    ),
-    Task(
-        id = 1,
-        subjectId = 0,
-        title = "Assignment",
-        description = "",
-        dueDate = 0L,
-        priority = 1,
-        relatedToSubject = "",
-        isCompleted = false
-    ),
-    Task(
-        id = 1,
-        subjectId = 0,
-        title = "Write poem",
-        description = "",
-        dueDate = 0L,
-        priority = 0,
-        relatedToSubject = "",
-        isCompleted = true
-    )
-)
-
-val fakeSessions = listOf(
-    Session(
-        id = 0,
-        subjectId = 0,
-        relatedToSubject = "English",
-        date = 0L,
-        duration = 2
-    ),
-    Session(
-        id = 0,
-        subjectId = 0,
-        relatedToSubject = "English",
-        date = 0L,
-        duration = 2
-    ),
-    Session(
-        id = 0,
-        subjectId = 0,
-        relatedToSubject = "Physics",
-        date = 0L,
-        duration = 2
-    ),
-    Session(
-        id = 0,
-        subjectId = 0,
-        relatedToSubject = "Maths",
-        date = 0L,
-        duration = 2
-    )
-)
-
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
@@ -303,8 +214,8 @@ fun GreetingPreview() {
                 SnackBarEvent.ShowSnackBar("")
             ),
             onEvent = {},
-            tasks = fakeTasks,
-            sessions = fakeSessions,
+            tasks = emptyList(),
+            sessions = emptyList(),
             uiState = DashboardState(),
             onSubjectClick = {},
             onStartSessionClick = {},
