@@ -54,7 +54,6 @@ fun RelatedToSubjectSession(
                     contentDescription = null
                 )
             }
-
         }
     }
 }
